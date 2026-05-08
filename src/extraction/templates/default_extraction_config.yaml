@@ -18,7 +18,7 @@ model:
   model: llama3:8b
   comparison_model: null
   base_url: http://localhost:11434
-  timeout_seconds: 200
+  timeout_seconds: 300
   temperature: 0.0
   checkpoint_dir: checkpoints/extraction
   classification_max_chars: 3500

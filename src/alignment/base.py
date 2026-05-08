@@ -14,7 +14,7 @@ from typing import Any
 
 from alignment.config import AlignmentConfig, RubricConfig, load_alignment_config
 from alignment.prompts import load_prompt_library
-from alignment.schema import AlignmentReport, FieldAlignment, PolicyEvidence
+from alignment.schema import AlignmentInsight, AlignmentReport, ChunkTrace, FieldAlignment
 
 try:
     from tqdm.auto import tqdm
@@ -151,7 +151,12 @@ class Align:
         for section_name, section_payload in research_sections.items():
             fields = section_payload.get("fields", {})
             for field_name, raw_research_entries in fields.items():
-                research_entries = self._normalize_entries(raw_research_entries)
+                research_entries = self._normalize_entries(
+                    raw_research_entries,
+                    document_id=section_payload.get("document_id", "research"),
+                    section_name=section_name,
+                    field_name=field_name,
+                )
                 if not research_entries:
                     continue
                 focus_subrubrics = target_map.get((section_name, field_name), [])
@@ -162,10 +167,14 @@ class Align:
                         .get("fields", {})
                         .get(field_name, [])
                     )
-                    for entry in self._normalize_entries(policy_field_entries):
-                        enriched = dict(entry)
-                        enriched["document_id"] = policy_id
-                        policy_entries.append(enriched)
+                    policy_entries.extend(
+                        self._normalize_entries(
+                            policy_field_entries,
+                            document_id=policy_id,
+                            section_name=section_name,
+                            field_name=field_name,
+                        )
+                    )
                 if not policy_entries:
                     continue
                 tasks.append(
@@ -178,6 +187,7 @@ class Align:
                         "policy_entries": policy_entries,
                         "focus_subrubrics": focus_subrubrics,
                         "all_subrubrics": all_subrubrics,
+                        "output_field_map": self.config.output_field_map,
                     }
                 )
         return tasks
@@ -188,8 +198,10 @@ class Align:
         rubric_help = self._render_rubrics()
         subrubric_help = self._render_subrubrics()
         focus_help = self._render_focus_help(task["focus_subrubrics"])
-        research_entries = self._render_research_entries(task["research_entries"])
-        policy_entries = self._render_policy_entries(task["policy_entries"])
+        research_lookup = self._build_trace_lookup(task["research_entries"], prefix="R")
+        policy_lookup = self._build_trace_lookup(task["policy_entries"], prefix="P")
+        research_entries = self._render_entries_with_lookup(task["research_entries"], research_lookup)
+        policy_entries = self._render_entries_with_lookup(task["policy_entries"], policy_lookup)
         payload = self._complete_json(
             pass_name="pass1",
             file_stem=f"align_{task['section']}_{task['field_name']}_{self.config.model.model}",
@@ -217,26 +229,34 @@ class Align:
             field_name=task["field_name"],
             research_document_id=task["research_document_id"],
             policy_document_ids=task["policy_document_ids"],
-            shared_features=_clean_string_list(payload.get("shared_features", [])),
-            policy_requirements_not_covered=_clean_string_list(
-                payload.get("policy_requirements_not_covered", [])
+            shared_features=self._parse_insight_list(
+                payload.get("shared_features", []),
+                output_field=self.config.output_field_map["shared_features"],
+                research_lookup=research_lookup,
+                policy_lookup=policy_lookup,
             ),
-            research_capabilities_not_used=_clean_string_list(
-                payload.get("research_capabilities_not_used", [])
+            policy_requirements_not_covered=self._parse_insight_list(
+                payload.get("policy_requirements_not_covered", []),
+                output_field=self.config.output_field_map["policy_requirements_not_covered"],
+                research_lookup=research_lookup,
+                policy_lookup=policy_lookup,
             ),
-            bridge_actions=_clean_string_list(payload.get("bridge_actions", [])),
+            research_capabilities_not_used=self._parse_insight_list(
+                payload.get("research_capabilities_not_used", []),
+                output_field=self.config.output_field_map["research_capabilities_not_used"],
+                research_lookup=research_lookup,
+                policy_lookup=policy_lookup,
+            ),
+            bridge_actions=self._parse_insight_list(
+                payload.get("bridge_actions", []),
+                output_field=self.config.output_field_map["bridge_actions"],
+                research_lookup=research_lookup,
+                policy_lookup=policy_lookup,
+            ),
             rationale=_normalize_space(str(payload.get("rationale", ""))),
             subrubric_scores=subrubric_scores,
-            research_inputs=[
-                text
-                for entry in task["research_entries"]
-                for text in entry["evidence_texts"][:1]
-            ],
-            policy_inputs=[
-                PolicyEvidence(document_id=entry["document_id"], text=text)
-                for entry in task["policy_entries"]
-                for text in entry["evidence_texts"][:1]
-            ],
+            research_inputs=self._flatten_entry_traces(task["research_entries"]),
+            policy_inputs=self._flatten_entry_traces(task["policy_entries"]),
             metadata={
                 "focus_subrubrics": task["focus_subrubrics"],
                 "policy_entry_count": len(task["policy_entries"]),
@@ -279,14 +299,14 @@ class Align:
             research_document_id=research_document_id,
             policy_document_ids=policy_document_ids,
             field_results=field_results,
-            shared_features=_flatten_unique_lists(result.shared_features for result in field_results),
-            policy_requirements_not_covered=_flatten_unique_lists(
+            shared_features=_flatten_unique_insights(result.shared_features for result in field_results),
+            policy_requirements_not_covered=_flatten_unique_insights(
                 result.policy_requirements_not_covered for result in field_results
             ),
-            research_capabilities_not_used=_flatten_unique_lists(
+            research_capabilities_not_used=_flatten_unique_insights(
                 result.research_capabilities_not_used for result in field_results
             ),
-            bridge_actions=_flatten_unique_lists(result.bridge_actions for result in field_results),
+            bridge_actions=_flatten_unique_insights(result.bridge_actions for result in field_results),
             rationale=" ".join(rationales[:3]),
             subrubric_scores=subrubric_scores,
             dimension_scores=dimension_scores,
@@ -308,7 +328,21 @@ class Align:
             else:
                 properties[output_field.name] = {
                     "type": "array",
-                    "items": {"type": "string"},
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string"},
+                            "research_evidence_ids": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
+                            "policy_evidence_ids": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
+                        },
+                        "required": ["text", "research_evidence_ids", "policy_evidence_ids"],
+                    },
                 }
             required.append(output_field.name)
 
@@ -326,7 +360,14 @@ class Align:
     def _render_required_fields(self) -> str:
         lines = []
         for output_field in self.config.output_fields:
-            lines.append(f"- {output_field.name}: {output_field.description}")
+            if output_field.kind == "string":
+                lines.append(f"- {output_field.name}: {output_field.description}")
+                continue
+            lines.append(
+                f"- {output_field.name}: {output_field.description} "
+                f"(research_evidence={output_field.research_evidence}, "
+                f"policy_evidence={output_field.policy_evidence})"
+            )
         lines.append("- subrubric_scores: binary 0/1 scores for every subrubric")
         return "\n".join(lines)
 
@@ -351,23 +392,102 @@ class Align:
             return "- No special focus cues for this field."
         return "\n".join(f"- {name}" for name in focus_subrubrics)
 
-    def _render_research_entries(self, entries: list[dict[str, Any]]) -> str:
+    def _render_entries_with_lookup(
+        self,
+        entries: list[dict[str, Any]],
+        trace_lookup: dict[str, ChunkTrace],
+    ) -> str:
         lines: list[str] = []
         for index, entry in enumerate(entries, start=1):
-            lines.append(f"{index}. value={entry['value']!r}")
+            document_id = entry["document_id"]
+            lines.append(f"{index}. document_id={document_id}; value={entry['value']!r}")
             lines.append("   exact evidence:")
-            for evidence in entry["evidence_texts"]:
-                lines.append(f"   - {evidence!r}")
+            for trace_id in entry["trace_ids"]:
+                trace = trace_lookup[trace_id]
+                lines.append(
+                    f"   - [{trace_id}] chunk={trace.chunk_id or 'unknown'} "
+                    f"page={trace.page or 'unknown'} text={trace.text!r}"
+                )
         return "\n".join(lines)
 
-    def _render_policy_entries(self, entries: list[dict[str, Any]]) -> str:
-        lines: list[str] = []
-        for index, entry in enumerate(entries, start=1):
-            lines.append(f"{index}. document_id={entry['document_id']}; value={entry['value']!r}")
-            lines.append("   exact evidence:")
-            for evidence in entry["evidence_texts"]:
-                lines.append(f"   - {evidence!r}")
-        return "\n".join(lines)
+    def _build_trace_lookup(
+        self,
+        entries: list[dict[str, Any]],
+        *,
+        prefix: str,
+    ) -> dict[str, ChunkTrace]:
+        lookup: dict[str, ChunkTrace] = {}
+        counter = 1
+        for entry in entries:
+            trace_ids: list[str] = []
+            for trace in entry["evidence_traces"]:
+                trace_id = f"{prefix}{counter}"
+                counter += 1
+                lookup[trace_id] = trace
+                trace_ids.append(trace_id)
+            entry["trace_ids"] = trace_ids
+        return lookup
+
+    def _parse_insight_list(
+        self,
+        items: Any,
+        *,
+        output_field: Any,
+        research_lookup: dict[str, ChunkTrace],
+        policy_lookup: dict[str, ChunkTrace],
+    ) -> list[AlignmentInsight]:
+        insights: list[AlignmentInsight] = []
+        if not isinstance(items, list):
+            return insights
+        for item in items:
+            if isinstance(item, str):
+                text = _normalize_space(item)
+                if text:
+                    insights.append(AlignmentInsight(text=text))
+                continue
+            if not isinstance(item, dict):
+                continue
+            text = _normalize_space(str(item.get("text", "")))
+            if not text or _is_empty_value(text):
+                continue
+            research_evidence = self._resolve_trace_ids(
+                item.get("research_evidence_ids", []),
+                research_lookup,
+            )
+            policy_evidence = self._resolve_trace_ids(
+                item.get("policy_evidence_ids", []),
+                policy_lookup,
+            )
+            if getattr(output_field, "research_evidence", "optional") == "forbidden":
+                research_evidence = []
+            if getattr(output_field, "policy_evidence", "optional") == "forbidden":
+                policy_evidence = []
+            insights.append(
+                AlignmentInsight(
+                    text=text,
+                    research_evidence=research_evidence,
+                    policy_evidence=policy_evidence,
+                )
+            )
+        return insights
+
+    def _resolve_trace_ids(
+        self,
+        trace_ids: Any,
+        lookup: dict[str, ChunkTrace],
+    ) -> list[ChunkTrace]:
+        resolved: list[ChunkTrace] = []
+        for trace_id in _coerce_id_list(trace_ids):
+            trace = lookup.get(trace_id)
+            if trace is not None:
+                resolved.append(trace)
+        return _unique_trace_list(resolved)
+
+    def _flatten_entry_traces(self, entries: list[dict[str, Any]]) -> list[ChunkTrace]:
+        traces: list[ChunkTrace] = []
+        for entry in entries:
+            traces.extend(entry["evidence_traces"])
+        return _unique_trace_list(traces)
 
     def _complete_json(
         self,
@@ -488,23 +608,47 @@ class Align:
                 return document_id
         return "document"
 
-    def _normalize_entries(self, entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def _normalize_entries(
+        self,
+        entries: list[dict[str, Any]],
+        *,
+        document_id: str,
+        section_name: str,
+        field_name: str,
+    ) -> list[dict[str, Any]]:
         output: list[dict[str, Any]] = []
         for entry in entries or []:
             value = _normalize_space(str(entry.get("value", "")))
             if not value or _is_empty_value(value):
                 continue
-            evidence_texts = _clean_string_list(
-                span.get("text", "")
+            evidence_traces = [
+                ChunkTrace(
+                    document_id=document_id,
+                    section=section_name,
+                    field_name=field_name,
+                    text=_normalize_space(str(span.get("text", ""))),
+                    chunk_id=_normalize_space(str(span.get("chunk_id", ""))) or None,
+                    page=int(span.get("page")) if span.get("page") is not None else None,
+                    score=float(span.get("score", 0.0) or 0.0),
+                )
                 for span in entry.get("evidence_spans", [])
-            )
-            if not evidence_texts:
-                evidence_texts = [value]
+                if _normalize_space(str(span.get("text", "")))
+            ]
+            if not evidence_traces:
+                evidence_traces = [
+                    ChunkTrace(
+                        document_id=document_id,
+                        section=section_name,
+                        field_name=field_name,
+                        text=value,
+                    )
+                ]
             output.append(
                 {
+                    "document_id": document_id,
                     "value": value,
                     "confidence": float(entry.get("confidence", 0.0) or 0.0),
-                    "evidence_texts": evidence_texts,
+                    "evidence_traces": evidence_traces,
                 }
             )
         return output
@@ -709,11 +853,54 @@ def _unique_preserve_order(items: list[str]) -> list[str]:
     return output
 
 
-def _flatten_unique_lists(groups: Any) -> list[str]:
-    flattened: list[str] = []
+def _flatten_unique_insights(groups: Any) -> list[AlignmentInsight]:
+    merged: dict[str, AlignmentInsight] = {}
     for group in groups:
-        flattened.extend(group)
-    return _unique_preserve_order(flattened)
+        for insight in group:
+            key = _normalize_key(insight.text)
+            if not key:
+                continue
+            if key not in merged:
+                merged[key] = AlignmentInsight(
+                    text=insight.text,
+                    research_evidence=_unique_trace_list(insight.research_evidence),
+                    policy_evidence=_unique_trace_list(insight.policy_evidence),
+                )
+                continue
+            merged[key].research_evidence = _unique_trace_list(
+                merged[key].research_evidence + insight.research_evidence
+            )
+            merged[key].policy_evidence = _unique_trace_list(
+                merged[key].policy_evidence + insight.policy_evidence
+            )
+    return list(merged.values())
+
+
+def _unique_trace_list(traces: list[ChunkTrace]) -> list[ChunkTrace]:
+    seen: set[tuple[str, str, str, str | None, int | None, str]] = set()
+    output: list[ChunkTrace] = []
+    for trace in traces:
+        key = (
+            trace.document_id,
+            trace.section,
+            trace.field_name,
+            trace.chunk_id,
+            trace.page,
+            trace.text,
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        output.append(trace)
+    return output
+
+
+def _coerce_id_list(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return []
 
 
 def _coerce_binary(value: Any) -> int:

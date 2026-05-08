@@ -7,11 +7,25 @@ from typing import Any
 
 
 @dataclass(slots=True)
-class PolicyEvidence:
-    """Exact policy-side evidence retained for one field-level comparison."""
+class ChunkTrace:
+    """Traceable evidence carried forward from extraction spans."""
 
     document_id: str
+    section: str
+    field_name: str
     text: str
+    chunk_id: str | None = None
+    page: int | None = None
+    score: float = 0.0
+
+
+@dataclass(slots=True)
+class AlignmentInsight:
+    """One traceable alignment insight."""
+
+    text: str
+    research_evidence: list[ChunkTrace] = field(default_factory=list)
+    policy_evidence: list[ChunkTrace] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -22,14 +36,14 @@ class FieldAlignment:
     field_name: str
     research_document_id: str
     policy_document_ids: list[str] = field(default_factory=list)
-    shared_features: list[str] = field(default_factory=list)
-    policy_requirements_not_covered: list[str] = field(default_factory=list)
-    research_capabilities_not_used: list[str] = field(default_factory=list)
-    bridge_actions: list[str] = field(default_factory=list)
+    shared_features: list[AlignmentInsight] = field(default_factory=list)
+    policy_requirements_not_covered: list[AlignmentInsight] = field(default_factory=list)
+    research_capabilities_not_used: list[AlignmentInsight] = field(default_factory=list)
+    bridge_actions: list[AlignmentInsight] = field(default_factory=list)
     rationale: str = ""
     subrubric_scores: dict[str, int] = field(default_factory=dict)
-    research_inputs: list[str] = field(default_factory=list)
-    policy_inputs: list[PolicyEvidence] = field(default_factory=list)
+    research_inputs: list[ChunkTrace] = field(default_factory=list)
+    policy_inputs: list[ChunkTrace] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -41,10 +55,10 @@ class AlignmentReport:
     research_document_id: str
     policy_document_ids: list[str] = field(default_factory=list)
     field_results: list[FieldAlignment] = field(default_factory=list)
-    shared_features: list[str] = field(default_factory=list)
-    policy_requirements_not_covered: list[str] = field(default_factory=list)
-    research_capabilities_not_used: list[str] = field(default_factory=list)
-    bridge_actions: list[str] = field(default_factory=list)
+    shared_features: list[AlignmentInsight] = field(default_factory=list)
+    policy_requirements_not_covered: list[AlignmentInsight] = field(default_factory=list)
+    research_capabilities_not_used: list[AlignmentInsight] = field(default_factory=list)
+    bridge_actions: list[AlignmentInsight] = field(default_factory=list)
     rationale: str = ""
     subrubric_scores: dict[str, int] = field(default_factory=dict)
     dimension_scores: dict[str, float] = field(default_factory=dict)

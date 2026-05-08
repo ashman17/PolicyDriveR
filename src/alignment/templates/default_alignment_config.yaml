@@ -6,23 +6,31 @@ model:
   backend: ollama
   model: llama3:8b
   base_url: http://localhost:11434
-  timeout_seconds: 90
+  timeout_seconds: 300
   temperature: 0.0
   checkpoint_dir: checkpoints/alignment
 prompts_path: null
 output_fields:
   - name: shared_features
-    kind: list
+    kind: insight_list
     description: Concrete capabilities, goals, or framings clearly shared between the research field and the combined policy stance.
+    research_evidence: required
+    policy_evidence: required
   - name: policy_requirements_not_covered
-    kind: list
+    kind: insight_list
     description: Policy expectations or needs present in the policy evidence that the research field does not satisfy.
+    research_evidence: forbidden
+    policy_evidence: required
   - name: research_capabilities_not_used
-    kind: list
+    kind: insight_list
     description: Useful research capabilities or outputs that are present but not clearly taken up by the policy evidence.
+    research_evidence: required
+    policy_evidence: required
   - name: bridge_actions
-    kind: list
+    kind: insight_list
     description: Specific actions that would better connect the research capability to policy use.
+    research_evidence: required
+    policy_evidence: required
   - name: rationale
     kind: string
     description: One short explanation of the fit or mismatch for this section and field.

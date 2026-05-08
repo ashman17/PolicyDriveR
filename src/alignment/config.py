@@ -17,14 +17,18 @@ class OutputFieldConfig:
 
     name: str
     description: str
-    kind: str = "list"
+    kind: str = "insight_list"
+    research_evidence: str = "optional"
+    policy_evidence: str = "optional"
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "OutputFieldConfig":
         return cls(
             name=data["name"],
             description=data.get("description", ""),
-            kind=data.get("kind", "list"),
+            kind=data.get("kind", "insight_list"),
+            research_evidence=data.get("research_evidence", "optional"),
+            policy_evidence=data.get("policy_evidence", "optional"),
         )
 
 
@@ -178,6 +182,10 @@ class AlignmentConfig:
     @property
     def subrubric_map(self) -> dict[str, SubrubricConfig]:
         return {subrubric.name: subrubric for subrubric in self.all_subrubrics}
+
+    @property
+    def output_field_map(self) -> dict[str, OutputFieldConfig]:
+        return {output_field.name: output_field for output_field in self.output_fields}
 
     @property
     def rubric_by_subrubric(self) -> dict[str, RubricConfig]:
