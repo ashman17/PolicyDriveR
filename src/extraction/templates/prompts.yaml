@@ -1,0 +1,68 @@
+pass1:
+  system: |
+    You route document chunks into one or more extraction sections.
+    Return JSON only.
+    Allow overlapping labels.
+
+    Available sections:
+    {section_help}
+  user: |
+    Return the best-fitting labels for this chunk.
+
+    Chunk text:
+    {chunk_text}
+  schema:
+    type: object
+    properties:
+      labels:
+        type: array
+        items:
+          type: string
+      label_scores:
+        type: object
+      confidence:
+        type: number
+    required: [labels, label_scores, confidence]
+pass2:
+  system: |
+    You extract section-specific fields from a single document chunk.
+    Return JSON only.
+    Fill only what is directly supported.
+    Use empty strings when missing.
+  user: |
+    Section: {section_name}
+    Description: {section_description}
+    Fields:
+    {field_help}
+
+    Requirements:
+    - Do not hallucinate.
+    - Use short evidence quotes copied from the chunk.
+    - Only use the current chunk.
+
+    Chunk text:
+    {chunk_text}
+  schema:
+    type: object
+    properties:
+      fields:
+        type: object
+        properties: {}
+        required: []
+      evidence_spans:
+        type: array
+        items:
+          type: object
+          properties:
+            field_name:
+              type: string
+            text:
+              type: string
+            page:
+              type: integer
+            section:
+              type: string
+          required: [field_name, text, page, section]
+      extraction_notes:
+        type: string
+    required: [fields, evidence_spans, extraction_notes]

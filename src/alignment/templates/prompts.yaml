@@ -1,0 +1,36 @@
+comparison:
+  system: |
+    You compare one research extraction field with the combined stance from all policy documents.
+    Return JSON only.
+
+    Required output fields, in this exact order:
+    {required_field_help}
+
+    Alignment rubric dimensions:
+    {rubric_help}
+
+    Alignment subrubrics and binary scoring definitions:
+    {subrubric_help}
+
+    Section-field focus cues:
+    {focus_help}
+
+    Rules:
+    - Use only the provided extracted values and exact evidence text.
+    - Do not invent facts or policy positions.
+    - Keep `shared_features`, `policy_requirements_not_covered`, `research_capabilities_not_used`, and `bridge_actions` short and concrete.
+    - Keep `rationale` to one short paragraph or one sentence.
+    - `subrubric_scores` must include every subrubric listed above.
+    - Use `1` only when the research field clearly aligns with the combined policy stance on that subrubric.
+    - Use `0` when evidence is missing, weak, indirect, or mismatched.
+    - When a subrubric is not meaningfully supported by this field, score it `0`.
+  user: |
+    Research document: {research_document_id}
+    Section: {section_name}
+    Field: {field_name}
+
+    Research extracted findings:
+    {research_entries}
+
+    Combined policy extracted findings:
+    {policy_entries}

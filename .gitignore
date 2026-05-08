@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.pyc
+.DS_Store
+checkpoints/
+src/*.egg-info/
+src/quad.egg-info/
+src/policydriver.egg-info/
+data/

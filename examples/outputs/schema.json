@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "project": "policy_research_alignment_example",
+  "description": "Canonical schema for normalizing policy and research documents into a shared representation for alignment scoring.",
+  "core_principle": "Compare intent, capability, outputs, constraints, stakeholders, and deployability instead of comparing raw text.",
+  "shared_feature_groups": [
+    "problem_and_intent",
+    "methods_and_technical_approach",
+    "outputs_and_deliverables",
+    "constraints_risks_and_governance",
+    "stakeholders_and_ecosystem",
+    "implementation_and_deployment"
+  ],
+  "document_schema": {
+    "document_id": "string",
+    "source_bucket": "policy|research",
+    "file_name": "string",
+    "document_type": "policy_brief|strategy|policy_oriented_research|empirical_research|review",
+    "title": "string",
+    "year": "integer",
+    "citation": "string",
+    "problem_and_intent": {
+      "domain": "string",
+      "subdomain": "string",
+      "geographic_scope": "string",
+      "temporal_scope": "string",
+      "problem_types": [
+        "string"
+      ],
+      "problem_statement": "string",
+      "primary_goal": "string",
+      "secondary_goals": [
+        "string"
+      ],
+      "policy_priority_mapping": [
+        "string"
+      ]
+    },
+    "methods_and_technical_approach": {
+      "method_type": [
+        "string"
+      ],
+      "technical_components": [
+        "string"
+      ],
+      "data_characteristics": {
+        "data_type": [
+          "string"
+        ],
+        "data_source": [
+          "string"
+        ],
+        "temporal_dimension": "string",
+        "spatial_dimension": "string"
+      },
+      "innovation_type": [
+        "string"
+      ],
+      "resource_requirements": [
+        "string"
+      ]
+    },
+    "outputs_and_deliverables": {
+      "output_type": [
+        "string"
+      ],
+      "decision_support_role": "string",
+      "evaluation_metrics": [
+        "string"
+      ],
+      "performance_indicators": [
+        "string"
+      ]
+    },
+    "constraints_risks_and_governance": {
+      "legal_regulatory_constraints": [
+        "string"
+      ],
+      "ethical_considerations": [
+        "string"
+      ],
+      "technical_limitations": [
+        "string"
+      ],
+      "environmental_considerations": [
+        "string"
+      ],
+      "governance_mechanisms": [
+        "string"
+      ],
+      "policy_instruments": [
+        "string"
+      ]
+    },
+    "stakeholders_and_ecosystem": {
+      "stakeholders": [
+        "string"
+      ],
+      "end_users": [
+        "string"
+      ],
+      "institutional_context": [
+        "string"
+      ],
+      "adoption_context": "string"
+    },
+    "implementation_and_deployment": {
+      "trl_estimate": "integer|null",
+      "scalability": "string",
+      "integration_requirements": [
+        "string"
+      ],
+      "operational_requirements": [
+        "string"
+      ],
+      "cost_feasibility": "string"
+    },
+    "not_addressed_but_relevant": [
+      "string"
+    ],
+    "evidence_snippets": [
+      "string"
+    ]
+  },
+  "alignment_scoring": {
+    "score_range": "0-100",
+    "dimensions": [
+      {
+        "name": "problem_alignment",
+        "range": "0-20",
+        "definition": "Overlap in issue area, goals, and target outcomes."
+      },
+      {
+        "name": "method_alignment",
+        "range": "0-20",
+        "definition": "Extent to which the research method or evidence addresses the policy mechanism or need."
+      },
+      {
+        "name": "output_alignment",
+        "range": "0-20",
+        "definition": "Fit between research outputs and policy decision needs."
+      },
+      {
+        "name": "constraint_alignment",
+        "range": "0-15",
+        "definition": "How well research addresses policy-relevant legal, ethical, operational, or environmental risks."
+      },
+      {
+        "name": "stakeholder_alignment",
+        "range": "0-15",
+        "definition": "Overlap in intended users, institutions, and deployment context."
+      },
+      {
+        "name": "deployability_alignment",
+        "range": "0-10",
+        "definition": "Closeness between research readiness and policy adoption needs."
+      }
+    ],
+    "total_formula": "problem_alignment + method_alignment + output_alignment + constraint_alignment + stakeholder_alignment + deployability_alignment",
+    "interpretation_bands": {
+      "0-24": "very_low_alignment",
+      "25-49": "low_alignment",
+      "50-69": "moderate_alignment",
+      "70-84": "high_alignment",
+      "85-100": "very_high_alignment"
+    },
+    "derived_gap_fields": [
+      "missing_components",
+      "policy_requirements_not_covered",
+      "research_capabilities_not_used",
+      "bridge_actions"
+    ]
+  }
+}

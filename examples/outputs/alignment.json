@@ -1,0 +1,430 @@
+{
+  "schema_version": "1.0",
+  "alignment_pairs": [
+    {
+      "comparison_id": "policy1__research1",
+      "policy_document_id": "policy1",
+      "research_document_id": "research1",
+      "scores": {
+        "problem_alignment": 17,
+        "method_alignment": 16,
+        "output_alignment": 15,
+        "constraint_alignment": 8,
+        "stakeholder_alignment": 12,
+        "deployability_alignment": 8,
+        "total_alignment_score": 76,
+        "alignment_band": "high_alignment"
+      },
+      "shared_features": [
+        "marine biodiversity and coral monitoring",
+        "AI-enabled analysis for ecological observation",
+        "decision support for conservation and management"
+      ],
+      "policy_requirements_not_covered": [
+        "intellectual property and data protection handling",
+        "national security and formal dataset legitimacy controls",
+        "cross-agency governance design"
+      ],
+      "research_capabilities_not_used": [
+        "parameter-efficient model deployment details",
+        "cross-season transfer learning performance as a formal governance KPI"
+      ],
+      "bridge_actions": [
+        "Add a data governance layer to the coral monitoring workflow.",
+        "Map DINOv2-LoRA outputs to formally approved marine monitoring indicators.",
+        "Pilot the model in a Taiwan-style marine data inspection and compliance process."
+      ],
+      "rationale": "This is a strong AI-for-marine-monitoring match. The main gap is that the research offers a technically useful monitoring model, while the policy paper emphasizes legitimacy, security, and governance controls that the research does not address.",
+      "evidence_from_policy": [
+        "AI into biodiversity monitoring, underwater exploration, and environmental analysis",
+        "data collection policies, legitimating measures, and inspection protocols"
+      ],
+      "evidence_from_research": [
+        "DINOv2-LoRA model for coral reef condition monitoring",
+        "monitoring tool for conserving and managing coral reef ecosystems"
+      ]
+    },
+    {
+      "comparison_id": "policy1__research2",
+      "policy_document_id": "policy1",
+      "research_document_id": "research2",
+      "scores": {
+        "problem_alignment": 16,
+        "method_alignment": 14,
+        "output_alignment": 14,
+        "constraint_alignment": 7,
+        "stakeholder_alignment": 11,
+        "deployability_alignment": 10,
+        "total_alignment_score": 72,
+        "alignment_band": "high_alignment"
+      },
+      "shared_features": [
+        "marine ecological monitoring",
+        "AI or machine learning support for environmental assessment",
+        "use of data to support conservation strategy"
+      ],
+      "policy_requirements_not_covered": [
+        "legal compliance and data legitimacy framework",
+        "explicit governance mechanisms for marine datasets",
+        "international framework alignment"
+      ],
+      "research_capabilities_not_used": [
+        "longitudinal habitat area change metrics",
+        "multi-resolution remote sensing evidence as a monitoring KPI set"
+      ],
+      "bridge_actions": [
+        "Connect the remote sensing outputs to marine governance indicators such as legality, security, and credibility.",
+        "Use the Derawan-style spatiotemporal monitoring design as a technical evidence module inside a marine AI governance program.",
+        "Define approval and inspection rules for satellite-derived habitat products."
+      ],
+      "rationale": "The fit is strong on monitoring and environmental assessment, but weaker on governance. Research2 is more operationally deployable than Research1, yet it still does not meet policy1's legal-governance emphasis.",
+      "evidence_from_policy": [
+        "governance model to enhance legality, security, and credibility of marine datasets",
+        "AI policies and cross-agency coordination"
+      ],
+      "evidence_from_research": [
+        "machine learning classification to inform conservation strategies",
+        "two-decade coral habitat change assessment"
+      ]
+    },
+    {
+      "comparison_id": "policy1__research3",
+      "policy_document_id": "policy1",
+      "research_document_id": "research3",
+      "scores": {
+        "problem_alignment": 11,
+        "method_alignment": 6,
+        "output_alignment": 8,
+        "constraint_alignment": 9,
+        "stakeholder_alignment": 6,
+        "deployability_alignment": 5,
+        "total_alignment_score": 45,
+        "alignment_band": "low_alignment"
+      },
+      "shared_features": [
+        "marine environmental protection",
+        "policy-relevant framing",
+        "need to manage risks around ecological harm"
+      ],
+      "policy_requirements_not_covered": [
+        "AI methods for marine monitoring",
+        "marine data governance and inspection protocols",
+        "cross-agency AI policy architecture"
+      ],
+      "research_capabilities_not_used": [
+        "microplastic source and toxicity evidence",
+        "human health linkage"
+      ],
+      "bridge_actions": [
+        "Use microplastic risk evidence as a problem-priority layer inside marine AI governance planning.",
+        "Add monitoring and dataset governance mechanisms before treating the review as implementable support for policy1.",
+        "Translate pollution recommendations into marine data collection protocols."
+      ],
+      "rationale": "Both documents care about marine sustainability, but they operate on different problem layers. Policy1 is about AI governance for marine research; Research3 is a pollutant-focused review with some policy discussion but no AI or monitoring architecture.",
+      "evidence_from_policy": [
+        "AI marine scientific research model",
+        "sustainable ocean governance"
+      ],
+      "evidence_from_research": [
+        "microplastic contamination, policy intervention, and the way forward",
+        "research and policy recommendations to mitigate contamination"
+      ]
+    },
+    {
+      "comparison_id": "policy2__research1",
+      "policy_document_id": "policy2",
+      "research_document_id": "research1",
+      "scores": {
+        "problem_alignment": 6,
+        "method_alignment": 10,
+        "output_alignment": 7,
+        "constraint_alignment": 4,
+        "stakeholder_alignment": 2,
+        "deployability_alignment": 4,
+        "total_alignment_score": 33,
+        "alignment_band": "low_alignment"
+      },
+      "shared_features": [
+        "AI-enabled decision support",
+        "dependence on data quality and labeled data",
+        "interest in deployable AI capability"
+      ],
+      "policy_requirements_not_covered": [
+        "military mission alignment",
+        "enterprise-to-edge deployment in contested environments",
+        "workforce and governance transformation for defense"
+      ],
+      "research_capabilities_not_used": [
+        "ecological image generalization insights",
+        "parameter-efficient adaptation insights"
+      ],
+      "bridge_actions": [
+        "Treat the coral model only as a technical analogy for lightweight deployment, not as a mission-aligned solution.",
+        "Extract lessons on parameter-efficient adaptation for edge AI rather than on coral monitoring itself.",
+        "Add domain-specific operational data and mission metrics before considering adoption."
+      ],
+      "rationale": "There is a weak cross-domain AI methods match, but the application context is almost entirely different. Shared technical ideas do not compensate for the defense-versus-conservation mismatch.",
+      "evidence_from_policy": [
+        "decision advantage",
+        "data generation, collection, labeling, and curation"
+      ],
+      "evidence_from_research": [
+        "LoRA reduces trainable parameters",
+        "tool for monitoring coral reef ecosystems"
+      ]
+    },
+    {
+      "comparison_id": "policy2__research2",
+      "policy_document_id": "policy2",
+      "research_document_id": "research2",
+      "scores": {
+        "problem_alignment": 4,
+        "method_alignment": 9,
+        "output_alignment": 6,
+        "constraint_alignment": 3,
+        "stakeholder_alignment": 2,
+        "deployability_alignment": 4,
+        "total_alignment_score": 28,
+        "alignment_band": "low_alignment"
+      },
+      "shared_features": [
+        "machine learning for decision support",
+        "importance of data quality",
+        "operational need for scalable data workflows"
+      ],
+      "policy_requirements_not_covered": [
+        "warfighting context",
+        "responsible AI governance in defense",
+        "enterprise-to-edge tactical deployment"
+      ],
+      "research_capabilities_not_used": [
+        "habitat change mapping",
+        "multi-resolution environmental monitoring outputs"
+      ],
+      "bridge_actions": [
+        "Use this paper only as a generic example of classifier evaluation and data resolution tradeoffs.",
+        "Do not infer domain alignment from shared AI language alone.",
+        "Require mission-specific datasets and military users before scoring it as operationally relevant."
+      ],
+      "rationale": "Research2 and policy2 share only generic ML workflow traits. The actual end users, decisions, and risks are too different for a meaningful alignment claim.",
+      "evidence_from_policy": [
+        "AI across warfighting functions and business operations",
+        "data management is the largest challenge"
+      ],
+      "evidence_from_research": [
+        "RF, SVM, and CART for coral habitat monitoring",
+        "accuracy depends on image resolution and data quality"
+      ]
+    },
+    {
+      "comparison_id": "policy2__research3",
+      "policy_document_id": "policy2",
+      "research_document_id": "research3",
+      "scores": {
+        "problem_alignment": 2,
+        "method_alignment": 1,
+        "output_alignment": 2,
+        "constraint_alignment": 3,
+        "stakeholder_alignment": 1,
+        "deployability_alignment": 3,
+        "total_alignment_score": 12,
+        "alignment_band": "very_low_alignment"
+      },
+      "shared_features": [
+        "both mention policy-relevant risk",
+        "both are concerned with consequences of poor systems management"
+      ],
+      "policy_requirements_not_covered": [
+        "AI deployment, data management, and defense operations",
+        "military users and governance",
+        "decision advantage objectives"
+      ],
+      "research_capabilities_not_used": [
+        "microplastic threat evidence",
+        "pollution policy recommendations"
+      ],
+      "bridge_actions": [
+        "Treat this pair as a negative example for calibration.",
+        "Use it to verify that the scoring system penalizes superficial policy-language overlap.",
+        "Require shared domain and users before assigning meaningful alignment."
+      ],
+      "rationale": "This is essentially a non-match. The policy document concerns military AI modernization, while the research paper concerns global coral reef microplastic pollution.",
+      "evidence_from_policy": [
+        "Marine Corps AI strategy"
+      ],
+      "evidence_from_research": [
+        "microplastic threat to coral reefs"
+      ]
+    },
+    {
+      "comparison_id": "policy3__research1",
+      "policy_document_id": "policy3",
+      "research_document_id": "research1",
+      "scores": {
+        "problem_alignment": 17,
+        "method_alignment": 16,
+        "output_alignment": 17,
+        "constraint_alignment": 8,
+        "stakeholder_alignment": 13,
+        "deployability_alignment": 10,
+        "total_alignment_score": 81,
+        "alignment_band": "high_alignment"
+      },
+      "shared_features": [
+        "coral reef conservation",
+        "standardized monitoring",
+        "citizen science-compatible data collection",
+        "actionable data for management"
+      ],
+      "policy_requirements_not_covered": [
+        "water quality regulation",
+        "fisheries management",
+        "restoration policy design",
+        "rights-based governance"
+      ],
+      "research_capabilities_not_used": [
+        "fine-grained transfer learning insights",
+        "parameter-efficient model tuning details"
+      ],
+      "bridge_actions": [
+        "Use the model as a component in national coral monitoring programs.",
+        "Map model outputs to Healthy Coral Reef Indicators and restoration monitoring KPIs.",
+        "Add governance, access, and community participation rules around the technical workflow."
+      ],
+      "rationale": "This is a strong fit because policy3 explicitly asks for standardized, actionable coral monitoring and support for citizen science networks. Research1 directly offers an automated monitoring tool that could strengthen those programs.",
+      "evidence_from_policy": [
+        "strengthen coral reef monitoring to provide actionable data",
+        "support participatory and citizen science monitoring networks"
+      ],
+      "evidence_from_research": [
+        "labeled according to universal standards used in citizen science-based conservation programs",
+        "provides a tool for monitoring, conserving, and managing coral reef ecosystems"
+      ]
+    },
+    {
+      "comparison_id": "policy3__research2",
+      "policy_document_id": "policy3",
+      "research_document_id": "research2",
+      "scores": {
+        "problem_alignment": 18,
+        "method_alignment": 17,
+        "output_alignment": 17,
+        "constraint_alignment": 9,
+        "stakeholder_alignment": 13,
+        "deployability_alignment": 9,
+        "total_alignment_score": 83,
+        "alignment_band": "high_alignment"
+      },
+      "shared_features": [
+        "coral reef monitoring over space and time",
+        "science-based management support",
+        "quantitative indicators for conservation decisions"
+      ],
+      "policy_requirements_not_covered": [
+        "equitable governance and community participation",
+        "explicit pollution and fisheries instruments",
+        "restoration ownership and buy-in"
+      ],
+      "research_capabilities_not_used": [
+        "classifier comparison detail for specific data resolutions",
+        "site-specific area change trend outputs"
+      ],
+      "bridge_actions": [
+        "Use the remote sensing workflow to feed national and regional reef monitoring programs.",
+        "Translate habitat maps into policy-facing indicators and targets.",
+        "Layer social, governance, and restoration variables onto the ecological monitoring workflow."
+      ],
+      "rationale": "This pair scores slightly higher than policy3-research1 on operational monitoring fit because Research2 provides concrete long-term spatiotemporal monitoring outputs that map well to policy3's indicator and tracking agenda.",
+      "evidence_from_policy": [
+        "adoption and monitoring of Healthy Coral Reef Indicators over space and time",
+        "results freely available to inform management and policy decisions"
+      ],
+      "evidence_from_research": [
+        "over two decades (2003, 2011, and 2021)",
+        "RF classifier accuracy and habitat area change outputs"
+      ]
+    },
+    {
+      "comparison_id": "policy3__research3",
+      "policy_document_id": "policy3",
+      "research_document_id": "research3",
+      "scores": {
+        "problem_alignment": 19,
+        "method_alignment": 15,
+        "output_alignment": 17,
+        "constraint_alignment": 13,
+        "stakeholder_alignment": 12,
+        "deployability_alignment": 10,
+        "total_alignment_score": 86,
+        "alignment_band": "very_high_alignment"
+      },
+      "shared_features": [
+        "coral reef decline from anthropogenic threats",
+        "plastic and pollution risk",
+        "policy intervention orientation",
+        "global to national governance relevance"
+      ],
+      "policy_requirements_not_covered": [
+        "standardized reef monitoring indicator design",
+        "area-based protection implementation details",
+        "community governance and rights-based participation mechanisms"
+      ],
+      "research_capabilities_not_used": [
+        "human health framing",
+        "detailed toxicity mechanism synthesis"
+      ],
+      "bridge_actions": [
+        "Use the review as the evidence base for policy3's plastics and pollution asks.",
+        "Translate microplastic risks into specific water quality targets and reef-threat management plans.",
+        "Pair the review with standardized monitoring protocols so that pollution policy can be tracked over time."
+      ],
+      "rationale": "This is the strongest alignment in the set because policy3 directly names plastics and land-based pollution as reef threats, while Research3 synthesizes exactly that threat space and explicitly includes policy intervention and mitigation recommendations.",
+      "evidence_from_policy": [
+        "reduce land-based pollution risk, especially from agriculture, plastics, and other sources",
+        "urgent action is required to address the primary drivers of coral reef decline"
+      ],
+      "evidence_from_research": [
+        "microplastic as an invisible threat to the coral reefs",
+        "existing policy and further recommendations to mitigate contamination are critically analyzed"
+      ]
+    }
+  ],
+  "ranking_high_to_low": [
+    {
+      "comparison_id": "policy3__research3",
+      "total_alignment_score": 86
+    },
+    {
+      "comparison_id": "policy3__research2",
+      "total_alignment_score": 83
+    },
+    {
+      "comparison_id": "policy3__research1",
+      "total_alignment_score": 81
+    },
+    {
+      "comparison_id": "policy1__research1",
+      "total_alignment_score": 76
+    },
+    {
+      "comparison_id": "policy1__research2",
+      "total_alignment_score": 72
+    },
+    {
+      "comparison_id": "policy1__research3",
+      "total_alignment_score": 45
+    },
+    {
+      "comparison_id": "policy2__research1",
+      "total_alignment_score": 33
+    },
+    {
+      "comparison_id": "policy2__research2",
+      "total_alignment_score": 28
+    },
+    {
+      "comparison_id": "policy2__research3",
+      "total_alignment_score": 12
+    }
+  ]
+}

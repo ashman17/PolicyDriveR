@@ -1,0 +1,944 @@
+{
+  "schema_version": "1.0",
+  "documents": [
+    {
+      "document_id": "policy1",
+      "source_bucket": "policy",
+      "file_name": "policy/policy1.pdf",
+      "document_type": "policy_oriented_research",
+      "title": "Development of an artificial intelligence (AI) marine scientific research model: The case of marine science and technology policy and its legitimate practice in Taiwan",
+      "year": 2026,
+      "citation": "Jao et al., Marine Policy 185 (2026) 106996",
+      "problem_and_intent": {
+        "domain": "marine science policy",
+        "subdomain": "AI-enabled marine research governance",
+        "geographic_scope": "Taiwan with comparison to EU, United States, Japan, and Korea",
+        "temporal_scope": "long-term governance and sustainable ocean management",
+        "problem_types": [
+          "monitoring",
+          "governance",
+          "data governance",
+          "legal compliance"
+        ],
+        "problem_statement": "Taiwan is expanding AI use in marine science, but legal and governance gaps around data legitimacy, security, and cross-agency coordination can limit trustworthy deployment.",
+        "primary_goal": "Develop a governance-oriented AI marine scientific research model for legally compliant and credible marine data use.",
+        "secondary_goals": [
+          "Support biodiversity monitoring and underwater exploration",
+          "Improve policy coordination across agencies",
+          "Align marine AI development with international sustainability frameworks"
+        ],
+        "policy_priority_mapping": [
+          "SDG 14",
+          "UN Ocean Decade",
+          "sustainable ocean governance"
+        ]
+      },
+      "methods_and_technical_approach": {
+        "method_type": [
+          "case study",
+          "comparative policy analysis",
+          "AI-enabled monitoring",
+          "legal governance design"
+        ],
+        "technical_components": [
+          "AI for biodiversity monitoring",
+          "underwater exploration",
+          "environmental analysis",
+          "marine dataset governance model"
+        ],
+        "data_characteristics": {
+          "data_type": [
+            "marine datasets",
+            "ecological survey data",
+            "biodiversity monitoring data"
+          ],
+          "data_source": [
+            "marine exploration and ecological survey project",
+            "government and research marine data collection"
+          ],
+          "temporal_dimension": "ongoing programmatic use under climate change",
+          "spatial_dimension": "national marine domain with international policy benchmarking"
+        },
+        "innovation_type": [
+          "cross-domain transfer from AI to marine governance",
+          "governance model for legitimate AI-enabled marine research"
+        ],
+        "resource_requirements": [
+          "cross-agency coordination",
+          "data inspection processes",
+          "policy refinement and legal capacity"
+        ]
+      },
+      "outputs_and_deliverables": {
+        "output_type": [
+          "governance model",
+          "policy guidance",
+          "data legitimacy framework"
+        ],
+        "decision_support_role": "Provides a governance framework for deciding how marine AI systems and datasets can be collected, inspected, and used legitimately.",
+        "evaluation_metrics": [
+          "legality",
+          "security",
+          "credibility"
+        ],
+        "performance_indicators": [
+          "presence of data collection policies",
+          "legitimating measures",
+          "inspection protocols",
+          "alignment with international frameworks"
+        ]
+      },
+      "constraints_risks_and_governance": {
+        "legal_regulatory_constraints": [
+          "intellectual property",
+          "data protection",
+          "national security"
+        ],
+        "ethical_considerations": [
+          "legitimacy of marine datasets",
+          "responsible AI use in marine science"
+        ],
+        "technical_limitations": [
+          "policy fragmentation across agencies",
+          "need for reliable data handling protocols"
+        ],
+        "environmental_considerations": [
+          "climate change impacts on marine biodiversity",
+          "need for sustainable ocean governance"
+        ],
+        "governance_mechanisms": [
+          "data collection policies",
+          "legitimating measures",
+          "inspection protocols",
+          "cross-agency coordination"
+        ],
+        "policy_instruments": [
+          "governance framework",
+          "policy refinement",
+          "comparative legal benchmarking"
+        ]
+      },
+      "stakeholders_and_ecosystem": {
+        "stakeholders": [
+          "government agencies",
+          "marine scientists",
+          "legal and policy experts",
+          "international governance bodies"
+        ],
+        "end_users": [
+          "Taiwan policy makers",
+          "marine research institutions",
+          "public agencies responsible for marine data governance"
+        ],
+        "institutional_context": [
+          "Taiwan marine policy",
+          "international ocean governance frameworks"
+        ],
+        "adoption_context": "National governance and research administration context."
+      },
+      "implementation_and_deployment": {
+        "trl_estimate": 6,
+        "scalability": "high for governance adoption, moderate for technical integration",
+        "integration_requirements": [
+          "agency interoperability",
+          "standardized marine data handling",
+          "legal review processes"
+        ],
+        "operational_requirements": [
+          "inspection and compliance workflows",
+          "dataset security controls",
+          "coordination between research and policy actors"
+        ],
+        "cost_feasibility": "Moderate, with nontrivial institutional coordination costs."
+      },
+      "not_addressed_but_relevant": [
+        "Concrete ecological monitoring model benchmarks",
+        "operational field validation on coral-specific indicators",
+        "detailed cost and compute analysis"
+      ],
+      "evidence_snippets": [
+        "Highlights Taiwan's integration of AI into biodiversity monitoring, underwater exploration, and environmental analysis.",
+        "Addresses legal challenges in intellectual property, data protection, and national security.",
+        "Develops a governance model using data collection policies, legitimating measures, and inspection protocols."
+      ]
+    },
+    {
+      "document_id": "policy2",
+      "source_bucket": "policy",
+      "file_name": "policy/policy2.pdf",
+      "document_type": "strategy",
+      "title": "Marine Corps Artificial Intelligence Strategy",
+      "year": 2024,
+      "citation": "United States Marine Corps Artificial Intelligence Strategy, August 2024",
+      "problem_and_intent": {
+        "domain": "defense AI policy",
+        "subdomain": "military decision-support and enterprise AI adoption",
+        "geographic_scope": "United States Marine Corps and partner ecosystem",
+        "temporal_scope": "near-term to medium-term operational modernization",
+        "problem_types": [
+          "decision support",
+          "governance",
+          "workforce development",
+          "enterprise deployment"
+        ],
+        "problem_statement": "The Marine Corps wants faster and better decision-making through AI, but faces misalignment with mission objectives, skills gaps, scale-up challenges, and legacy governance barriers.",
+        "primary_goal": "Integrate responsible AI across the Marine Corps to create decision advantage.",
+        "secondary_goals": [
+          "Modernize data management",
+          "Improve AI competency across the force",
+          "Deploy AI from enterprise systems to the tactical edge"
+        ],
+        "policy_priority_mapping": [
+          "digital modernization",
+          "DoD AI hierarchy of needs",
+          "responsible AI"
+        ]
+      },
+      "methods_and_technical_approach": {
+        "method_type": [
+          "strategy framework",
+          "enterprise modernization",
+          "responsible AI adoption"
+        ],
+        "technical_components": [
+          "data generation and collection",
+          "data labeling and curation",
+          "enterprise-to-edge AI deployment",
+          "lean governance"
+        ],
+        "data_characteristics": {
+          "data_type": [
+            "operational data",
+            "enterprise data",
+            "mission-support data"
+          ],
+          "data_source": [
+            "Marine Corps operational and business systems"
+          ],
+          "temporal_dimension": "continuous operational use",
+          "spatial_dimension": "enterprise through tactical edge in contested environments"
+        },
+        "innovation_type": [
+          "organizational transformation",
+          "responsible AI operationalization"
+        ],
+        "resource_requirements": [
+          "significant resources",
+          "workforce training",
+          "strategic partnerships",
+          "data management modernization"
+        ]
+      },
+      "outputs_and_deliverables": {
+        "output_type": [
+          "strategy document",
+          "enterprise AI framework",
+          "workforce and governance roadmap"
+        ],
+        "decision_support_role": "Sets conditions for AI-enabled decision advantage across warfighting and business operations.",
+        "evaluation_metrics": [
+          "decision speed",
+          "deployment at scale",
+          "mission alignment"
+        ],
+        "performance_indicators": [
+          "reducing minutes to seconds in decision-making",
+          "ability to deploy from enterprise to tactical edge",
+          "growth in AI competency"
+        ]
+      },
+      "constraints_risks_and_governance": {
+        "legal_regulatory_constraints": [
+          "policy development constraints in defense context"
+        ],
+        "ethical_considerations": [
+          "responsible AI use",
+          "informed leadership"
+        ],
+        "technical_limitations": [
+          "data management is the largest challenge",
+          "difficulty deploying AI at scale",
+          "gaps in AI competency"
+        ],
+        "environmental_considerations": [],
+        "governance_mechanisms": [
+          "lean governance",
+          "enterprise guidance",
+          "leadership oversight"
+        ],
+        "policy_instruments": [
+          "strategy",
+          "training and education",
+          "partnerships",
+          "resource alignment"
+        ]
+      },
+      "stakeholders_and_ecosystem": {
+        "stakeholders": [
+          "Marines",
+          "commanders",
+          "DoD leadership",
+          "joint allies and partners"
+        ],
+        "end_users": [
+          "operational commanders",
+          "data-centric personnel",
+          "enterprise modernization leaders"
+        ],
+        "institutional_context": [
+          "U.S. Marine Corps",
+          "Department of Defense",
+          "joint and allied operations"
+        ],
+        "adoption_context": "Service-wide military modernization and warfighting support."
+      },
+      "implementation_and_deployment": {
+        "trl_estimate": 8,
+        "scalability": "high",
+        "integration_requirements": [
+          "enterprise and tactical interoperability",
+          "quality data foundation",
+          "aligned doctrine and training"
+        ],
+        "operational_requirements": [
+          "human oversight",
+          "workforce training",
+          "resource commitment"
+        ],
+        "cost_feasibility": "High strategic value but resource intensive."
+      },
+      "not_addressed_but_relevant": [
+        "environmental sustainability impacts",
+        "civilian governance transferability",
+        "domain-specific ecological use cases"
+      ],
+      "evidence_snippets": [
+        "Provides a framework for integrating AI across all levels of the Marine Corps to support better and faster decision-making.",
+        "Identifies misalignment with mission objectives, AI competency gaps, scale challenges, and legacy governance barriers.",
+        "Deploying AI from enterprise to the edge depends on efficient data management, labeling, and curation."
+      ]
+    },
+    {
+      "document_id": "policy3",
+      "source_bucket": "policy",
+      "file_name": "policy/policy3.pdf",
+      "document_type": "policy_brief",
+      "title": "Key Policy Asks for Coral Reefs: Accelerating the Decade of Action #ForCoral",
+      "year": 2025,
+      "citation": "International Coral Reef Initiative, 24 April 2025",
+      "problem_and_intent": {
+        "domain": "marine conservation policy",
+        "subdomain": "coral reef protection, restoration, and governance",
+        "geographic_scope": "global with national and regional implementation pathways",
+        "temporal_scope": "urgent action through 2025 and the remainder of the SDG and GBF implementation horizon",
+        "problem_types": [
+          "conservation",
+          "monitoring",
+          "restoration",
+          "governance",
+          "pollution control"
+        ],
+        "problem_statement": "Coral reefs are under urgent pressure from climate change and localized anthropogenic threats, and policy action is needed to halt degradation and build long-term ecological and socio-economic resilience.",
+        "primary_goal": "Accelerate coordinated action for coral reef protection, restoration, monitoring, and equitable governance.",
+        "secondary_goals": [
+          "Reduce land-based pollution and fisheries pressures",
+          "Expand effective area-based protection",
+          "Strengthen standardized monitoring and restoration practice",
+          "Integrate coral reefs into climate and biodiversity policy"
+        ],
+        "policy_priority_mapping": [
+          "SDG 14",
+          "Kunming-Montreal Global Biodiversity Framework",
+          "Target 22",
+          "NDCs",
+          "NAPs",
+          "NBSAPs"
+        ]
+      },
+      "methods_and_technical_approach": {
+        "method_type": [
+          "policy agenda",
+          "governance coordination",
+          "science-based conservation planning"
+        ],
+        "technical_components": [
+          "water quality targets",
+          "MPA, OECM, and ABMT expansion",
+          "restoration paired with local threat reduction",
+          "standardized monitoring and data handling",
+          "citizen science monitoring networks"
+        ],
+        "data_characteristics": {
+          "data_type": [
+            "coral reef indicators",
+            "monitoring program outputs",
+            "biological, physical, social, cultural, and economic variables"
+          ],
+          "data_source": [
+            "national monitoring programs",
+            "regional monitoring networks",
+            "citizen science networks"
+          ],
+          "temporal_dimension": "tracking conditions and targets over space and time",
+          "spatial_dimension": "local, national, regional, and global reef systems"
+        },
+        "innovation_type": [
+          "integrated climate-biodiversity policy alignment",
+          "rights-based and participatory coral governance"
+        ],
+        "resource_requirements": [
+          "capacity building",
+          "knowledge exchange",
+          "community participation",
+          "regional coordination"
+        ]
+      },
+      "outputs_and_deliverables": {
+        "output_type": [
+          "policy asks",
+          "target framework",
+          "monitoring guidance",
+          "restoration guidance"
+        ],
+        "decision_support_role": "Defines the actions and indicators governments and reef managers should use to prioritize coral policy and management.",
+        "evaluation_metrics": [
+          "area under effective management",
+          "hard coral cover",
+          "macroalgae cover",
+          "herbivorous fish abundance and biomass",
+          "disease prevalence",
+          "water quality targets"
+        ],
+        "performance_indicators": [
+          "expansion of protected and effectively managed reef areas",
+          "standardized monitoring adoption",
+          "restoration impacts measured at ecosystem level",
+          "integration of coral reefs into climate and biodiversity plans"
+        ]
+      },
+      "constraints_risks_and_governance": {
+        "legal_regulatory_constraints": [
+          "need for enforceable regulations on pollution, fisheries, and land use"
+        ],
+        "ethical_considerations": [
+          "inclusive and gender-responsive participation",
+          "rights of indigenous peoples and local communities",
+          "access to justice and information"
+        ],
+        "technical_limitations": [
+          "separate climate and biodiversity institutions can weaken coordination",
+          "need for standardized monitoring and data handling"
+        ],
+        "environmental_considerations": [
+          "climate change",
+          "coral bleaching",
+          "land-based pollution",
+          "overfishing",
+          "runoff and sedimentation"
+        ],
+        "governance_mechanisms": [
+          "national monitoring programs",
+          "regional governance frameworks",
+          "management plans",
+          "participatory governance",
+          "monitoring networks"
+        ],
+        "policy_instruments": [
+          "regulation",
+          "protected areas",
+          "restoration guidelines",
+          "science-based targets",
+          "capacity-building partnerships"
+        ]
+      },
+      "stakeholders_and_ecosystem": {
+        "stakeholders": [
+          "governments",
+          "local communities",
+          "indigenous peoples",
+          "women and youth",
+          "NGOs",
+          "monitoring networks",
+          "regional intergovernmental organizations"
+        ],
+        "end_users": [
+          "policy makers",
+          "reef managers",
+          "monitoring coordinators",
+          "community organizations"
+        ],
+        "institutional_context": [
+          "ICRI",
+          "GCRMN",
+          "UN ocean and biodiversity processes",
+          "national environmental agencies"
+        ],
+        "adoption_context": "Global policy advocacy translated into national and regional coral management."
+      },
+      "implementation_and_deployment": {
+        "trl_estimate": 9,
+        "scalability": "high",
+        "integration_requirements": [
+          "integration into NDCs, NAPs, and NBSAPs",
+          "linkage across climate, biodiversity, and fisheries institutions",
+          "shared monitoring standards"
+        ],
+        "operational_requirements": [
+          "enforcement",
+          "monitoring infrastructure",
+          "community buy-in",
+          "ongoing restoration assessment"
+        ],
+        "cost_feasibility": "Potentially costly to implement broadly, but framed as necessary for long-term ecological and socio-economic resilience."
+      },
+      "not_addressed_but_relevant": [
+        "specific AI or analytics architectures for monitoring",
+        "site-level benchmark performance thresholds for automated classification",
+        "detailed implementation budgets"
+      ],
+      "evidence_snippets": [
+        "Calls for meaningful water quality targets and strong regulation on pollution and watersheds.",
+        "Advances standardized monitoring and use of Healthy Coral Reef Indicators over space and time.",
+        "Supports citizen science monitoring networks and integration into NDCs, NAPs, and NBSAPs."
+      ]
+    },
+    {
+      "document_id": "research1",
+      "source_bucket": "research",
+      "file_name": "research/research1.pdf",
+      "document_type": "empirical_research",
+      "title": "Multi-label classification for multi-temporal, multi-spatial coral reef condition monitoring using vision foundation model with adapter learning",
+      "year": 2025,
+      "citation": "Shao et al., arXiv:2503.23012v1 (2025)",
+      "problem_and_intent": {
+        "domain": "marine science and computer vision",
+        "subdomain": "coral reef condition monitoring with foundation models",
+        "geographic_scope": "Koh Tao, Thailand with cross-site and cross-season transfer emphasis",
+        "temporal_scope": "multi-temporal monitoring across seasons",
+        "problem_types": [
+          "monitoring",
+          "classification",
+          "conservation decision support"
+        ],
+        "problem_statement": "Manual underwater coral monitoring is labor intensive, inconsistent, and hard to generalize across sites and seasons, while conventional deep models struggle with complex underwater imagery.",
+        "primary_goal": "Improve multi-label coral reef condition classification using a parameter-efficient vision foundation model approach.",
+        "secondary_goals": [
+          "Reduce trainable parameter burden",
+          "Improve generalizability across temporal and spatial settings",
+          "Support conservation and management with better monitoring"
+        ],
+        "policy_priority_mapping": [
+          "coral reef conservation",
+          "ecological monitoring",
+          "citizen science-compatible monitoring standards"
+        ]
+      },
+      "methods_and_technical_approach": {
+        "method_type": [
+          "deep learning",
+          "vision foundation model",
+          "parameter-efficient fine-tuning",
+          "transfer learning"
+        ],
+        "technical_components": [
+          "DINOv2",
+          "LoRA",
+          "multi-label classification",
+          "underwater survey image pipeline"
+        ],
+        "data_characteristics": {
+          "data_type": [
+            "underwater ecological images"
+          ],
+          "data_source": [
+            "underwater surveys at 15 dive sites",
+            "citizen science-based conservation program labeling"
+          ],
+          "temporal_dimension": "multi-temporal",
+          "spatial_dimension": "multi-spatial across sites"
+        },
+        "innovation_type": [
+          "application of foundation models to coral reef monitoring",
+          "parameter-efficient adaptation for ecological imagery"
+        ],
+        "resource_requirements": [
+          "GPU compute for fine-tuning",
+          "labeled underwater imagery",
+          "field survey collection"
+        ]
+      },
+      "outputs_and_deliverables": {
+        "output_type": [
+          "classification model",
+          "monitoring tool"
+        ],
+        "decision_support_role": "Produces automated coral condition labels that can support monitoring, conservation, and management decisions.",
+        "evaluation_metrics": [
+          "match ratio",
+          "cross-site generalizability",
+          "cross-season generalizability"
+        ],
+        "performance_indicators": [
+          "64.77% match ratio for DINOv2-LoRA",
+          "60.34% for best conventional baseline",
+          "trainable parameters reduced from 1,100M to 5.91M"
+        ]
+      },
+      "constraints_risks_and_governance": {
+        "legal_regulatory_constraints": [],
+        "ethical_considerations": [
+          "dependency on labeling standards and human interpretation quality"
+        ],
+        "technical_limitations": [
+          "complex underwater image conditions",
+          "need for large compute in full fine-tuning",
+          "generalization challenges across regions and seasons"
+        ],
+        "environmental_considerations": [
+          "carbon emissions from model training"
+        ],
+        "governance_mechanisms": [],
+        "policy_instruments": []
+      },
+      "stakeholders_and_ecosystem": {
+        "stakeholders": [
+          "scientists",
+          "citizen science programs",
+          "reef managers",
+          "conservation organizations"
+        ],
+        "end_users": [
+          "ecological monitoring teams",
+          "conservation practitioners",
+          "reef management programs"
+        ],
+        "institutional_context": [
+          "university researchers",
+          "community-based conservation program"
+        ],
+        "adoption_context": "Prototype monitoring workflow that could plug into coral survey programs."
+      },
+      "implementation_and_deployment": {
+        "trl_estimate": 5,
+        "scalability": "moderate",
+        "integration_requirements": [
+          "integration with field survey workflows",
+          "access to labeled image archives",
+          "quality control for monitoring standards"
+        ],
+        "operational_requirements": [
+          "periodic retraining",
+          "human validation",
+          "continued image collection"
+        ],
+        "cost_feasibility": "Moderate, improved by LoRA but still dependent on compute and curation."
+      },
+      "not_addressed_but_relevant": [
+        "formal legal and governance compliance",
+        "water quality, fisheries, or restoration policy instruments",
+        "national monitoring program integration details"
+      ],
+      "evidence_snippets": [
+        "Uses underwater surveys at 15 dive sites at Koh Tao, Thailand, labeled to universal standards used in citizen science-based conservation programs.",
+        "DINOv2-LoRA achieved a 64.77% match ratio compared with 60.34% for the best conventional model.",
+        "The model is proposed as a tool for monitoring, conserving, and managing coral reef ecosystems."
+      ]
+    },
+    {
+      "document_id": "research2",
+      "source_bucket": "research",
+      "file_name": "research/research2.pdf",
+      "document_type": "empirical_research",
+      "title": "Assessing Derawan Island's Coral Reefs over Two Decades: A Machine Learning Classification Perspective",
+      "year": 2024,
+      "citation": "Manessa et al., Sensors 24, 466 (2024)",
+      "problem_and_intent": {
+        "domain": "marine science and remote sensing",
+        "subdomain": "coral reef habitat monitoring with machine learning",
+        "geographic_scope": "Derawan Island, Indonesia",
+        "temporal_scope": "2003, 2011, and 2021 long-term comparison",
+        "problem_types": [
+          "monitoring",
+          "mapping",
+          "classification",
+          "conservation decision support"
+        ],
+        "problem_statement": "Coral reef habitats on Derawan Island are changing over time and need accurate, multi-resolution monitoring to inform conservation strategy.",
+        "primary_goal": "Assess two decades of coral reef habitat change using machine learning classification on multispectral imagery.",
+        "secondary_goals": [
+          "Compare RF, SVM, and CART across data resolutions",
+          "Identify the most accurate classification approach",
+          "Support ecological monitoring and conservation planning"
+        ],
+        "policy_priority_mapping": [
+          "environmental monitoring",
+          "conservation strategy",
+          "long-term habitat assessment"
+        ]
+      },
+      "methods_and_technical_approach": {
+        "method_type": [
+          "machine learning",
+          "remote sensing",
+          "spatiotemporal analysis"
+        ],
+        "technical_components": [
+          "Random Forest",
+          "Support Vector Machine",
+          "Classification and Regression Tree",
+          "Landsat 7",
+          "Landsat 9",
+          "Sentinel-2",
+          "Multispectral Aerial Photos"
+        ],
+        "data_characteristics": {
+          "data_type": [
+            "multispectral imagery",
+            "aerial photos"
+          ],
+          "data_source": [
+            "satellite imagery",
+            "aerial photography",
+            "field and validation image data"
+          ],
+          "temporal_dimension": "multi-year over two decades",
+          "spatial_dimension": "site-level coastal habitat mapping"
+        },
+        "innovation_type": [
+          "comparative model selection for coral habitat mapping",
+          "integration of multiple spatial resolutions for long-term monitoring"
+        ],
+        "resource_requirements": [
+          "remote sensing data access",
+          "geospatial processing workflow",
+          "validation data"
+        ]
+      },
+      "outputs_and_deliverables": {
+        "output_type": [
+          "classification workflow",
+          "habitat maps",
+          "temporal change assessment"
+        ],
+        "decision_support_role": "Provides spatial evidence on coral reef change and an empirically preferred classifier for monitoring programs.",
+        "evaluation_metrics": [
+          "classification accuracy",
+          "habitat area change"
+        ],
+        "performance_indicators": [
+          "RF accuracy of 71.43% with Landsat 9",
+          "RF accuracy of 73.68% with Sentinel-2",
+          "RF accuracy of 78.28% with multispectral aerial photos",
+          "reef area reduced to 16 hectares from 2003 to 2011 before a slight later increase"
+        ]
+      },
+      "constraints_risks_and_governance": {
+        "legal_regulatory_constraints": [],
+        "ethical_considerations": [],
+        "technical_limitations": [
+          "accuracy depends on geographic resolution",
+          "accuracy depends on field and image data quality",
+          "dataset size not ideal for deep learning"
+        ],
+        "environmental_considerations": [
+          "coral reefs threatened by climate change"
+        ],
+        "governance_mechanisms": [],
+        "policy_instruments": []
+      },
+      "stakeholders_and_ecosystem": {
+        "stakeholders": [
+          "researchers",
+          "environmental monitoring agencies",
+          "conservation planners"
+        ],
+        "end_users": [
+          "reef managers",
+          "mapping teams",
+          "conservation decision-makers"
+        ],
+        "institutional_context": [
+          "university research",
+          "coastal monitoring and conservation practice"
+        ],
+        "adoption_context": "Operationalizable monitoring and mapping workflow for site-level coral assessment."
+      },
+      "implementation_and_deployment": {
+        "trl_estimate": 6,
+        "scalability": "moderate to high",
+        "integration_requirements": [
+          "access to multispectral and aerial imagery",
+          "geospatial processing capability",
+          "periodic validation data"
+        ],
+        "operational_requirements": [
+          "repeat monitoring schedule",
+          "classifier maintenance and recalibration",
+          "human interpretation of mapped outputs"
+        ],
+        "cost_feasibility": "Moderate and potentially favorable for programs already using remote sensing."
+      },
+      "not_addressed_but_relevant": [
+        "formal governance and legal compliance layers",
+        "social participation and rights-based governance",
+        "microplastic and water-quality stressor pathways"
+      ],
+      "evidence_snippets": [
+        "Uses Landsat 9, Landsat 7, Sentinel-2, and multispectral aerial photos to assess coral habitats over 2003, 2011, and 2021.",
+        "RF was the most accurate classifier, reaching 78.28% accuracy with multispectral aerial photos.",
+        "Monitoring is positioned as a way to inform conservation strategies in an ecologically sensitive coral reef area."
+      ]
+    },
+    {
+      "document_id": "research3",
+      "source_bucket": "research",
+      "file_name": "research/research3.pdf",
+      "document_type": "review",
+      "title": "Microplastic as an invisible threat to the coral reefs: Sources, toxicity mechanisms, policy intervention, and the way forward",
+      "year": 2023,
+      "citation": "Rahman et al., Journal of Hazardous Materials 454 (2023) 131522",
+      "problem_and_intent": {
+        "domain": "marine environmental science",
+        "subdomain": "microplastic impacts on coral reefs and policy response",
+        "geographic_scope": "global",
+        "temporal_scope": "long-term and ongoing global pollution pressure",
+        "problem_types": [
+          "pollution",
+          "governance",
+          "risk assessment",
+          "review and synthesis"
+        ],
+        "problem_statement": "Microplastic pollution threatens coral reefs, can bioaccumulate through food chains, and remains under-addressed in coral reef policy and research.",
+        "primary_goal": "Synthesize knowledge on sources, distribution, toxicity mechanisms, policy intervention, and future directions for microplastics in coral reef systems.",
+        "secondary_goals": [
+          "Highlight research and policy gaps",
+          "Explain risks to coral and human health",
+          "Recommend mitigation directions"
+        ],
+        "policy_priority_mapping": [
+          "plastic waste mitigation",
+          "coral reef protection",
+          "pollution governance"
+        ]
+      },
+      "methods_and_technical_approach": {
+        "method_type": [
+          "literature review",
+          "policy evaluation",
+          "risk synthesis"
+        ],
+        "technical_components": [
+          "source analysis",
+          "distribution analysis",
+          "toxicity mechanism synthesis",
+          "policy recommendation synthesis"
+        ],
+        "data_characteristics": {
+          "data_type": [
+            "published studies",
+            "global evidence on coral reef microplastics"
+          ],
+          "data_source": [
+            "scientific literature",
+            "existing policy evidence"
+          ],
+          "temporal_dimension": "historical and current evidence synthesis",
+          "spatial_dimension": "global coral reef regions"
+        },
+        "innovation_type": [
+          "integrated synthesis of science and policy intervention for microplastic threats"
+        ],
+        "resource_requirements": [
+          "continued monitoring and targeted research",
+          "policy attention to critical coral reef areas"
+        ]
+      },
+      "outputs_and_deliverables": {
+        "output_type": [
+          "evidence synthesis",
+          "policy recommendations",
+          "research gap map"
+        ],
+        "decision_support_role": "Provides policy-relevant synthesis on why microplastic mitigation matters for coral reefs and where evidence and governance gaps remain.",
+        "evaluation_metrics": [
+          "coverage of sources and distribution",
+          "mechanism synthesis",
+          "policy evaluation depth"
+        ],
+        "performance_indicators": [
+          "identifies global variation in microplastic distribution and sources",
+          "connects coral impacts to human health concerns",
+          "critiques existing policy and offers mitigation recommendations"
+        ]
+      },
+      "constraints_risks_and_governance": {
+        "legal_regulatory_constraints": [
+          "need for stronger policy intervention on plastic pollution"
+        ],
+        "ethical_considerations": [
+          "human health impacts through food-chain exposure",
+          "ecological harm to vulnerable reef systems"
+        ],
+        "technical_limitations": [
+          "limited empirical coverage in some coral reef regions",
+          "knowledge gaps on distribution, fate, and effects"
+        ],
+        "environmental_considerations": [
+          "microplastic contamination",
+          "coral bleaching interactions",
+          "bioaccumulation"
+        ],
+        "governance_mechanisms": [
+          "policy evaluation",
+          "mitigation recommendations"
+        ],
+        "policy_instruments": [
+          "plastic pollution mitigation",
+          "research prioritization",
+          "alternative material and biodegradation exploration"
+        ]
+      },
+      "stakeholders_and_ecosystem": {
+        "stakeholders": [
+          "policy makers",
+          "scientists",
+          "reef managers",
+          "public health stakeholders"
+        ],
+        "end_users": [
+          "environmental regulators",
+          "marine conservation actors",
+          "research agenda setters"
+        ],
+        "institutional_context": [
+          "global coral reef governance and research landscape"
+        ],
+        "adoption_context": "Evidence base for priority setting and pollution-related coral policy design."
+      },
+      "implementation_and_deployment": {
+        "trl_estimate": null,
+        "scalability": "high as policy evidence, not a deployable technical system",
+        "integration_requirements": [
+          "translation into pollution regulation and monitoring agendas",
+          "linkage to coral reef management plans"
+        ],
+        "operational_requirements": [
+          "follow-on monitoring",
+          "site-specific implementation studies",
+          "regulatory uptake"
+        ],
+        "cost_feasibility": "High feasibility as a policy evidence input; downstream implementation costs depend on chosen mitigation measures."
+      },
+      "not_addressed_but_relevant": [
+        "standardized automated coral monitoring architecture",
+        "site-level protected-area management design",
+        "jurisdiction-specific legal implementation detail"
+      ],
+      "evidence_snippets": [
+        "Summarizes the global distribution and source of microplastics within coral reefs.",
+        "Critically analyzes existing policy and further recommendations to mitigate microplastic contamination on corals.",
+        "Highlights mechanisms affecting coral and human health and calls for research focused on critical coral reef areas."
+      ]
+    }
+  ]
+}

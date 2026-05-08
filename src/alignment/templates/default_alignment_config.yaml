@@ -1,0 +1,196 @@
+schema_version: "1.0"
+input:
+  extraction_checkpoint_dir: checkpoints/extraction/pass3
+  policy_folder_glob: policy*
+model:
+  backend: ollama
+  model: llama3:8b
+  base_url: http://localhost:11434
+  timeout_seconds: 90
+  temperature: 0.0
+  checkpoint_dir: checkpoints/alignment
+prompts_path: null
+output_fields:
+  - name: shared_features
+    kind: list
+    description: Concrete capabilities, goals, or framings clearly shared between the research field and the combined policy stance.
+  - name: policy_requirements_not_covered
+    kind: list
+    description: Policy expectations or needs present in the policy evidence that the research field does not satisfy.
+  - name: research_capabilities_not_used
+    kind: list
+    description: Useful research capabilities or outputs that are present but not clearly taken up by the policy evidence.
+  - name: bridge_actions
+    kind: list
+    description: Specific actions that would better connect the research capability to policy use.
+  - name: rationale
+    kind: string
+    description: One short explanation of the fit or mismatch for this section and field.
+rubrics:
+  - name: problem_alignment
+    description: Does the research address the same coral-reef conservation issue and need as the policy set?
+    weight: 0.22
+    subrubrics:
+      - name: topical_overlap
+        description: The research field speaks to the same coral reef threat, management problem, or ecological topic as the policies.
+        weight: 0.35
+      - name: objective_overlap
+        description: The research field supports the same intended management, conservation, or governance objective as the policies.
+        weight: 0.30
+      - name: scope_overlap
+        description: The research field matches the policy scope across geography, population, habitat, or time horizon.
+        weight: 0.20
+      - name: urgency_alignment
+        description: The research field reflects the same level of urgency or immediate action need expressed in the policies.
+        weight: 0.15
+  - name: method_alignment
+    description: Are the methods usable and credible for coral-reef policy and management practice?
+    weight: 0.10
+    subrubrics:
+      - name: methodological_relevance
+        description: The method directly produces evidence or capability that policy or reef management actors can use.
+        weight: 0.35
+      - name: technical_maturity
+        description: The method appears mature enough to be trusted or advanced beyond a purely speculative idea.
+        weight: 0.25
+      - name: interoperability
+        description: The method can connect with existing conservation workflows, monitoring systems, or governance data processes.
+        weight: 0.20
+      - name: reproducibility
+        description: The method is documented or evidenced well enough to be repeated, verified, or scaled by others.
+        weight: 0.20
+  - name: governance_alignment
+    description: Does the work satisfy governance expectations that matter in coral reef conservation policy?
+    weight: 0.14
+    subrubrics:
+      - name: accountability
+        description: The research supports clear ownership, responsibility, or decision accountability.
+        weight: 0.25
+      - name: compliance
+        description: The research reflects legal, regulatory, or policy compliance needs relevant to reef governance.
+        weight: 0.30
+      - name: transparency
+        description: The research makes its assumptions, process, outputs, or limitations visible enough for policy scrutiny.
+        weight: 0.25
+      - name: auditability
+        description: The research outputs can be checked, inspected, or reviewed by policy or management actors.
+        weight: 0.20
+  - name: risk_alignment
+    description: Does the work recognize and manage risks relevant to reef conservation policy?
+    weight: 0.15
+    subrubrics:
+      - name: safety
+        description: The research addresses operational or ecological safety concerns tied to its use.
+        weight: 0.18
+      - name: misuse
+        description: The research acknowledges or mitigates misuse, abuse, or unintended use risk.
+        weight: 0.14
+      - name: environmental_risk
+        description: The research addresses environmental downside, ecosystem harm, or conservation tradeoff risk.
+        weight: 0.28
+      - name: bias_fairness
+        description: The research addresses fairness, representational imbalance, or inequitable impact.
+        weight: 0.18
+      - name: security
+        description: The research addresses security, tampering, or integrity risk where relevant.
+        weight: 0.22
+  - name: stakeholder_alignment
+    description: Does the work serve the right actors and communities for coral reef policy use?
+    weight: 0.10
+    subrubrics:
+      - name: affected_communities
+        description: The research reflects the needs of reef-dependent communities, local users, or affected populations.
+        weight: 0.35
+      - name: institutions
+        description: The research supports the needs of governing institutions, reef managers, or cross-agency actors.
+        weight: 0.25
+      - name: accessibility
+        description: The research outputs are accessible enough for intended users to obtain or understand them.
+        weight: 0.20
+      - name: usability
+        description: The research outputs are practical enough for decision support, monitoring, or program use.
+        weight: 0.20
+  - name: deployment_alignment
+    description: Can the work realistically be operationalized in coral reef policy or management contexts?
+    weight: 0.09
+    subrubrics:
+      - name: scalability
+        description: The research capability can scale across reefs, sites, or sustained program use.
+        weight: 0.30
+      - name: infrastructure_readiness
+        description: The needed tools, data, or operational infrastructure appear realistic for deployment.
+        weight: 0.25
+      - name: cost_feasibility
+        description: The likely cost profile appears feasible for reef conservation programs or institutions.
+        weight: 0.20
+      - name: integration_feasibility
+        description: The research can be integrated into existing policy, monitoring, or management workflows.
+        weight: 0.25
+  - name: impact_alignment
+    description: Does the work contribute to policy outcomes that matter for coral reef conservation?
+    weight: 0.20
+    subrubrics:
+      - name: sustainability
+        description: The research advances durable, long-term reef stewardship or sustainability goals.
+        weight: 0.22
+      - name: economic_impact
+        description: The research supports economic outcomes relevant to reef policy, livelihoods, or resilience.
+        weight: 0.15
+      - name: ecological_impact
+        description: The research supports ecological protection, restoration, or reef condition improvement.
+        weight: 0.40
+      - name: social_impact
+        description: The research supports social benefit, equity, education, or community resilience outcomes.
+        weight: 0.23
+section_field_targets:
+  - section: background
+    fields: [literature_context, historical_context, motivation, related_work]
+    focus_subrubrics: [topical_overlap, objective_overlap, urgency_alignment, sustainability]
+  - section: problem
+    fields: [problem_statement, problem_types, primary_goal, secondary_goals]
+    focus_subrubrics: [topical_overlap, objective_overlap, scope_overlap, urgency_alignment]
+  - section: scope
+    fields: [geographic_scope, temporal_scope, domain_scope, exclusions]
+    focus_subrubrics: [scope_overlap, topical_overlap, affected_communities, institutions]
+  - section: methods
+    fields: [method_type, techniques, workflows, model_details]
+    focus_subrubrics: [methodological_relevance, technical_maturity, interoperability, reproducibility, integration_feasibility]
+  - section: data
+    fields: [data_sources, collection_protocols, data_quality, licensing, accessibility]
+    focus_subrubrics: [transparency, auditability, accessibility, reproducibility, compliance]
+  - section: evaluation
+    fields: [evaluation_methods, benchmarks, validation_strategy, success_criteria]
+    focus_subrubrics: [technical_maturity, reproducibility, auditability, transparency]
+  - section: results
+    fields: [outputs, findings, evaluation_metrics, performance_summary]
+    focus_subrubrics: [methodological_relevance, usability, ecological_impact, social_impact]
+  - section: governance
+    fields: [compliance_requirements, oversight_mechanisms, accountability_structures, coordination_policies]
+    focus_subrubrics: [accountability, compliance, transparency, auditability, institutions]
+  - section: risk
+    fields: [operational_risks, societal_risks, environmental_risks, security_risks]
+    focus_subrubrics: [safety, misuse, environmental_risk, bias_fairness, security]
+  - section: constraints
+    fields: [legal_constraints, ethical_considerations, data_governance, deployment_constraints, resource_limitations]
+    focus_subrubrics: [compliance, transparency, safety, infrastructure_readiness, cost_feasibility]
+  - section: stakeholders
+    fields: [actors, beneficiaries, affected_groups, decision_makers]
+    focus_subrubrics: [affected_communities, institutions, accessibility, usability, social_impact]
+  - section: deployment
+    fields: [deployment_stage, integration_requirements, scalability_notes, operational_readiness]
+    focus_subrubrics: [scalability, infrastructure_readiness, cost_feasibility, integration_feasibility, usability]
+  - section: impact
+    fields: [societal_impact, ecological_impact, economic_impact, policy_impact]
+    focus_subrubrics: [sustainability, economic_impact, ecological_impact, social_impact, institutions]
+  - section: recommendations
+    fields: [policy_recommendations, future_work, implementation_guidance, strategic_actions]
+    focus_subrubrics: [objective_overlap, integration_feasibility, institutions, sustainability]
+  - section: limitations
+    fields: [limitations_summary, uncertainty_sources, assumptions, known_gaps]
+    focus_subrubrics: [transparency, auditability, safety, technical_maturity]
+  - section: monitoring
+    fields: [monitoring_methods, audit_processes, compliance_tracking, reporting_protocols]
+    focus_subrubrics: [auditability, transparency, compliance, interoperability]
+  - section: alignment_signal
+    fields: [referenced_frameworks, policy_links, sdg_alignment, governance_alignment_statements]
+    focus_subrubrics: [objective_overlap, compliance, institutions, sustainability, ecological_impact]

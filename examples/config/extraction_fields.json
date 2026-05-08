@@ -1,0 +1,497 @@
+{
+  "schema_version": "1.0",
+  "chunking": {
+    "target_tokens": 800,
+    "max_tokens": 1000,
+    "overlap_ratio": 0.12
+  },
+  "model": {
+    "backend": "ollama",
+    "model": "llama3:8b",
+    "comparison_model": null,
+    "base_url": "http://localhost:11434",
+    "timeout_seconds": 90,
+    "temperature": 0.0,
+    "checkpoint_dir": "checkpoints/extraction",
+    "classification_max_chars": 3500,
+    "include_schema_in_prompt": false
+  },
+  "consolidation": {
+    "consensus_rounds": 1,
+    "max_evidence_spans_per_field": 3
+  },
+  "sections": [
+    {
+      "name": "background",
+      "description": "Context, prior work, motivation, or historical framing that explains the broader setting of the work.",
+      "keywords": ["background", "prior work", "related work", "historical", "motivation", "context", "literature"],
+      "fields": [
+        {
+          "name": "literature_context",
+          "description": "Relevant literature or research context framing the work.",
+          "keywords": ["literature", "prior work", "related work", "studies"]
+        },
+        {
+          "name": "historical_context",
+          "description": "Historical or longitudinal context relevant to the work.",
+          "keywords": ["historical", "history", "over time", "previously"]
+        },
+        {
+          "name": "motivation",
+          "description": "Why the work was undertaken.",
+          "keywords": ["motivation", "motivated", "because", "need"]
+        },
+        {
+          "name": "related_work",
+          "description": "Specific mention of related methods or comparable studies.",
+          "keywords": ["related work", "previous studies", "compared with"]
+        }
+      ]
+    },
+    {
+      "name": "problem",
+      "description": "Why the work exists and what it is trying to solve.",
+      "keywords": ["problem", "challenge", "goal", "objective", "intent"],
+      "fields": [
+        {
+          "name": "problem_statement",
+          "description": "Core problem or gap addressed by the document.",
+          "keywords": ["problem", "challenge", "gap", "need"]
+        },
+        {
+          "name": "problem_types",
+          "description": "Short problem category labels.",
+          "keywords": ["classification", "monitoring", "governance"],
+          "controlled_vocab": ["classification", "monitoring", "governance", "conservation"]
+        },
+        {
+          "name": "primary_goal",
+          "description": "Main goal or intended outcome.",
+          "keywords": ["goal", "objective", "aim"]
+        },
+        {
+          "name": "secondary_goals",
+          "description": "Secondary goals or supporting aims.",
+          "keywords": ["secondary", "support", "additionally"]
+        }
+      ]
+    },
+    {
+      "name": "scope",
+      "description": "The boundaries and applicability of the work across geography, time, population, or domain.",
+      "keywords": ["scope", "geographic", "temporal", "domain", "applicability", "boundary", "exclusion"],
+      "fields": [
+        {
+          "name": "geographic_scope",
+          "description": "Geographic area or spatial scope covered by the work.",
+          "keywords": ["geographic", "region", "country", "site", "location"]
+        },
+        {
+          "name": "temporal_scope",
+          "description": "Time horizon or temporal scope of the work.",
+          "keywords": ["temporal", "season", "year", "time period", "long-term"]
+        },
+        {
+          "name": "domain_scope",
+          "description": "Subject-matter or application domain boundaries.",
+          "keywords": ["domain", "application", "sector", "use case"]
+        },
+        {
+          "name": "exclusions",
+          "description": "Explicit exclusions, non-goals, or out-of-scope items.",
+          "keywords": ["exclude", "out of scope", "not considered", "beyond the scope"]
+        }
+      ]
+    },
+    {
+      "name": "methods",
+      "description": "How the work is carried out.",
+      "keywords": ["method", "approach", "framework", "dataset", "experiment"],
+      "fields": [
+        {
+          "name": "method_type",
+          "description": "High-level method family.",
+          "keywords": ["method", "approach", "classifier", "analysis"],
+          "controlled_vocab": ["classification", "computer vision", "machine learning", "case study"]
+        },
+        {
+          "name": "techniques",
+          "description": "Concrete techniques, tools, or steps used.",
+          "keywords": ["technique", "algorithm", "pipeline", "training"]
+        },
+        {
+          "name": "workflows",
+          "description": "Operational workflow or process followed in the method.",
+          "keywords": ["workflow", "process", "pipeline", "procedure", "steps"]
+        },
+        {
+          "name": "model_details",
+          "description": "Model architecture, settings, or analytical details.",
+          "keywords": ["cnn", "transformer", "architecture", "parameter", "model"]
+        }
+      ]
+    },
+    {
+      "name": "data",
+      "description": "Information about datasets, collection processes, provenance, quality, and access.",
+      "keywords": ["data", "dataset", "collection", "provenance", "quality", "license", "access"],
+      "fields": [
+        {
+          "name": "data_sources",
+          "description": "Origin or provenance of the data.",
+          "keywords": ["data source", "dataset", "survey", "records", "images"]
+        },
+        {
+          "name": "collection_protocols",
+          "description": "How the data was collected or labeled.",
+          "keywords": ["collection", "protocol", "sampling", "labeling", "survey"]
+        },
+        {
+          "name": "data_quality",
+          "description": "Statements about data quality, coverage, or limitations.",
+          "keywords": ["quality", "coverage", "noise", "resolution", "imbalance"]
+        },
+        {
+          "name": "licensing",
+          "description": "Licensing or usage conditions attached to the data.",
+          "keywords": ["license", "licensed", "terms of use", "permission"]
+        },
+        {
+          "name": "accessibility",
+          "description": "How accessible the data is to others.",
+          "keywords": ["access", "available", "public", "restricted", "open"]
+        }
+      ]
+    },
+    {
+      "name": "evaluation",
+      "description": "How the work is assessed or validated.",
+      "keywords": ["evaluation", "validate", "benchmark", "success", "assessment", "testing"],
+      "fields": [
+        {
+          "name": "evaluation_methods",
+          "description": "Evaluation approach used to assess the work.",
+          "keywords": ["evaluation", "assess", "test", "validate"]
+        },
+        {
+          "name": "benchmarks",
+          "description": "Benchmarks, baselines, or comparison targets.",
+          "keywords": ["benchmark", "baseline", "compared to", "state-of-the-art"]
+        },
+        {
+          "name": "validation_strategy",
+          "description": "Validation setup or experimental design.",
+          "keywords": ["validation", "cross-validation", "holdout", "experimental setup"]
+        },
+        {
+          "name": "success_criteria",
+          "description": "Criteria that define success for the work.",
+          "keywords": ["success", "criterion", "threshold", "target"]
+        }
+      ]
+    },
+    {
+      "name": "results",
+      "description": "What the work produces or achieves.",
+      "keywords": ["result", "output", "finding", "performance", "achieved", "outcome"],
+      "fields": [
+        {
+          "name": "outputs",
+          "description": "Main outputs such as datasets, models, or recommendations.",
+          "keywords": ["output", "deliverable", "dataset", "model", "recommendation"]
+        },
+        {
+          "name": "findings",
+          "description": "Key substantive findings or conclusions.",
+          "keywords": ["finding", "found", "conclusion", "demonstrate", "show"]
+        },
+        {
+          "name": "evaluation_metrics",
+          "description": "Metrics or evaluation criteria used.",
+          "keywords": ["metric", "accuracy", "f1", "precision", "recall", "evaluation"]
+        },
+        {
+          "name": "performance_summary",
+          "description": "Summary of model or system performance.",
+          "keywords": ["performance", "accuracy", "improved", "achieved", "summary"]
+        }
+      ]
+    },
+    {
+      "name": "governance",
+      "description": "Oversight, compliance, accountability, and coordination mechanisms surrounding the work.",
+      "keywords": ["governance", "oversight", "compliance", "accountability", "coordination", "policy"],
+      "fields": [
+        {
+          "name": "compliance_requirements",
+          "description": "Rules, regulations, or compliance obligations tied to the work.",
+          "keywords": ["compliance", "requirement", "regulation", "standard", "policy"]
+        },
+        {
+          "name": "oversight_mechanisms",
+          "description": "Formal oversight or review mechanisms.",
+          "keywords": ["oversight", "review", "board", "approval", "inspection"]
+        },
+        {
+          "name": "accountability_structures",
+          "description": "Who is accountable and how accountability is organized.",
+          "keywords": ["accountability", "responsibility", "owner", "governance structure"]
+        },
+        {
+          "name": "coordination_policies",
+          "description": "Policies or practices coordinating actors or institutions.",
+          "keywords": ["coordination", "interagency", "collaboration", "governance policy"]
+        }
+      ]
+    },
+    {
+      "name": "risk",
+      "description": "Potential harms, failures, or negative consequences associated with the work.",
+      "keywords": ["risk", "harm", "failure", "security", "environmental", "societal", "operational"],
+      "fields": [
+        {
+          "name": "operational_risks",
+          "description": "Operational or implementation risks.",
+          "keywords": ["operational risk", "failure", "downtime", "deployment risk"]
+        },
+        {
+          "name": "societal_risks",
+          "description": "Risks to communities, users, or broader society.",
+          "keywords": ["societal", "community harm", "public risk", "social impact"]
+        },
+        {
+          "name": "environmental_risks",
+          "description": "Risks or harms to ecosystems and the environment.",
+          "keywords": ["environmental risk", "ecosystem harm", "ecological risk"]
+        },
+        {
+          "name": "security_risks",
+          "description": "Security, misuse, or adversarial risks.",
+          "keywords": ["security", "misuse", "attack", "vulnerability"]
+        }
+      ]
+    },
+    {
+      "name": "constraints",
+      "description": "Practical, legal, ethical, or operational limitations affecting the work.",
+      "keywords": ["constraint", "legal", "ethical", "limitation", "resource", "operational", "cost"],
+      "fields": [
+        {
+          "name": "legal_constraints",
+          "description": "Legal or regulatory constraints.",
+          "keywords": ["law", "legal", "regulation", "policy", "compliance"]
+        },
+        {
+          "name": "ethical_considerations",
+          "description": "Ethical issues, harms, or safeguards.",
+          "keywords": ["ethic", "bias", "fairness", "harm", "responsible"]
+        },
+        {
+          "name": "data_governance",
+          "description": "Data handling, stewardship, or access governance.",
+          "keywords": ["data governance", "data management", "privacy", "stewardship"]
+        },
+        {
+          "name": "deployment_constraints",
+          "description": "Operational or implementation constraints.",
+          "keywords": ["deployment", "operational", "infrastructure", "cost", "capacity"]
+        },
+        {
+          "name": "resource_limitations",
+          "description": "Resource limits such as compute, staff, budget, or time.",
+          "keywords": ["resource", "budget", "compute", "staff", "time limitation"]
+        }
+      ]
+    },
+    {
+      "name": "stakeholders",
+      "description": "Who is involved in, affected by, or expected to use the work.",
+      "keywords": ["stakeholder", "agency", "community", "beneficiary", "government"],
+      "fields": [
+        {
+          "name": "actors",
+          "description": "Organizations or actors involved in the work.",
+          "keywords": ["agency", "government", "ngo", "academia", "industry", "researchers"]
+        },
+        {
+          "name": "beneficiaries",
+          "description": "Groups that benefit from the work.",
+          "keywords": ["beneficiary", "community", "users", "public", "decision-makers"]
+        },
+        {
+          "name": "affected_groups",
+          "description": "Groups directly affected by the system or intervention.",
+          "keywords": ["affected", "impacted groups", "communities", "population"]
+        },
+        {
+          "name": "decision_makers",
+          "description": "People or institutions making decisions using the work.",
+          "keywords": ["decision-makers", "policy makers", "managers", "leaders"]
+        }
+      ]
+    },
+    {
+      "name": "deployment",
+      "description": "How mature the work is and whether it can scale.",
+      "keywords": ["deployment", "prototype", "pilot", "scalable", "production"],
+      "fields": [
+        {
+          "name": "deployment_stage",
+          "description": "Theoretical, prototype, pilot, or deployed stage.",
+          "keywords": ["theoretical", "prototype", "pilot", "deployed", "production"],
+          "controlled_vocab": ["theoretical", "prototype", "pilot", "deployed"]
+        },
+        {
+          "name": "scalability_notes",
+          "description": "Scalability and implementation readiness notes.",
+          "keywords": ["scale", "scalability", "capacity", "readiness", "integration"]
+        },
+        {
+          "name": "integration_requirements",
+          "description": "Requirements for integrating the work into existing systems or processes.",
+          "keywords": ["integration", "interoperability", "system requirement", "workflow integration"]
+        },
+        {
+          "name": "operational_readiness",
+          "description": "Readiness for operational or real-world use.",
+          "keywords": ["operational readiness", "ready for deployment", "field ready"]
+        }
+      ]
+    },
+    {
+      "name": "impact",
+      "description": "The broader effects or expected outcomes of the work on society, environment, policy, or economy.",
+      "keywords": ["impact", "societal", "ecological", "economic", "policy impact", "outcome"],
+      "fields": [
+        {
+          "name": "societal_impact",
+          "description": "Expected or observed effects on society or communities.",
+          "keywords": ["societal impact", "community benefit", "social outcome"]
+        },
+        {
+          "name": "ecological_impact",
+          "description": "Expected or observed environmental or ecological effects.",
+          "keywords": ["ecological impact", "environmental benefit", "ecosystem outcome"]
+        },
+        {
+          "name": "economic_impact",
+          "description": "Economic benefits, costs, or productivity effects.",
+          "keywords": ["economic impact", "cost", "economic benefit", "financial"]
+        },
+        {
+          "name": "policy_impact",
+          "description": "Influence on policy, regulation, or governance decisions.",
+          "keywords": ["policy impact", "regulatory impact", "governance outcome"]
+        }
+      ]
+    },
+    {
+      "name": "recommendations",
+      "description": "Suggested actions, future directions, policy guidance, or implementation advice derived from the work.",
+      "keywords": ["recommendation", "future work", "guidance", "next steps", "suggest", "advice"],
+      "fields": [
+        {
+          "name": "policy_recommendations",
+          "description": "Recommendations directed at policy or governance actors.",
+          "keywords": ["policy recommendation", "recommend policymakers", "governance guidance"]
+        },
+        {
+          "name": "future_work",
+          "description": "Suggested future research or development directions.",
+          "keywords": ["future work", "next step", "further research"]
+        },
+        {
+          "name": "implementation_guidance",
+          "description": "Practical guidance for implementation or adoption.",
+          "keywords": ["implementation guidance", "adoption guidance", "how to implement"]
+        },
+        {
+          "name": "strategic_actions",
+          "description": "Strategic actions suggested by the work.",
+          "keywords": ["strategic action", "action plan", "recommended action"]
+        }
+      ]
+    },
+    {
+      "name": "limitations",
+      "description": "Explicit weaknesses, uncertainties, assumptions, or acknowledged gaps in the work.",
+      "keywords": ["limitation", "uncertainty", "assumption", "gap", "weakness", "caveat"],
+      "fields": [
+        {
+          "name": "limitations_summary",
+          "description": "Summary of the main limitations.",
+          "keywords": ["limitation", "weakness", "caveat", "shortcoming"]
+        },
+        {
+          "name": "uncertainty_sources",
+          "description": "Sources of uncertainty or ambiguity in the work.",
+          "keywords": ["uncertainty", "variance", "confidence", "ambiguity"]
+        },
+        {
+          "name": "assumptions",
+          "description": "Core assumptions the work depends on.",
+          "keywords": ["assumption", "assume", "premise"]
+        },
+        {
+          "name": "known_gaps",
+          "description": "Known gaps or unresolved issues.",
+          "keywords": ["gap", "missing", "not addressed", "future improvement"]
+        }
+      ]
+    },
+    {
+      "name": "monitoring",
+      "description": "Mechanisms for ongoing tracking, auditing, compliance checking, or continuous assessment.",
+      "keywords": ["monitoring", "audit", "tracking", "compliance checking", "reporting", "continuous assessment"],
+      "fields": [
+        {
+          "name": "monitoring_methods",
+          "description": "Methods for ongoing monitoring or tracking.",
+          "keywords": ["monitoring method", "track", "observe", "continuous monitoring"]
+        },
+        {
+          "name": "audit_processes",
+          "description": "Audit or review procedures.",
+          "keywords": ["audit", "review process", "inspection", "assurance"]
+        },
+        {
+          "name": "compliance_tracking",
+          "description": "How compliance is tracked over time.",
+          "keywords": ["compliance tracking", "track compliance", "compliance check"]
+        },
+        {
+          "name": "reporting_protocols",
+          "description": "Reporting procedures or protocols.",
+          "keywords": ["reporting", "protocol", "disclosure", "report"]
+        }
+      ]
+    },
+    {
+      "name": "alignment_signal",
+      "description": "Explicit statements connecting research outcomes to policy goals, governance priorities, societal objectives, or sustainability frameworks.",
+      "keywords": ["alignment", "framework", "sdg", "policy goal", "governance priority", "sustainability"],
+      "fields": [
+        {
+          "name": "referenced_frameworks",
+          "description": "Named frameworks, standards, or agendas referenced by the work.",
+          "keywords": ["framework", "standard", "agenda", "guideline"]
+        },
+        {
+          "name": "policy_links",
+          "description": "Direct links between the work and policy goals or mandates.",
+          "keywords": ["policy link", "policy goal", "policy mandate", "policy relevance"]
+        },
+        {
+          "name": "sdg_alignment",
+          "description": "References to UN Sustainable Development Goals or similar targets.",
+          "keywords": ["sdg", "sustainable development goal", "un goal"]
+        },
+        {
+          "name": "governance_alignment_statements",
+          "description": "Explicit statements tying the work to governance priorities.",
+          "keywords": ["governance alignment", "governance priority", "policy alignment"]
+        }
+      ]
+    }
+  ]
+}
