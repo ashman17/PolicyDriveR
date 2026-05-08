@@ -32,6 +32,7 @@ where = ["src"]
 [tool.setuptools.package-data]
 extraction = ["templates/*.yaml"]
 alignment = ["templates/*.yaml"]
+scoring = ["templates/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]

@@ -11,6 +11,8 @@ from alignment.base import Align, SimpleLogger as AlignmentLogger
 from alignment.config import load_alignment_config
 from extraction.base import Reader, SimpleLogger
 from extraction.config import load_extraction_config
+from scoring.base import Score, SimpleLogger as ScoringLogger
+from scoring.config import load_scoring_config
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -116,6 +118,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
     align_config_cmd.add_argument("--output", help="Write config JSON to this file", default=None)
 
+    score = subparsers.add_parser(
+        "score-checkpoints",
+        help="Score one research document across many alignment comparison files",
+    )
+    score.add_argument("--research-id", required=True, help="Research id used in alignment reports")
+    score.add_argument(
+        "--policy-id",
+        action="append",
+        default=None,
+        help="Policy id to include. Repeat to restrict scoring to selected policies.",
+    )
+    score.add_argument(
+        "--source-dir",
+        default=None,
+        help="Override the alignment final directory used as scoring input",
+    )
+    score.add_argument("--config", help="JSON or YAML config path", default=None)
+    score.add_argument("--output", help="Write JSON output to this file", default=None)
+    score.add_argument("--quiet", action="store_true", help="Suppress stage logs")
+
+    score_config_cmd = subparsers.add_parser(
+        "score-config",
+        help="Print the default scoring config so it can be customized",
+    )
+    score_config_cmd.add_argument("--output", help="Write config JSON to this file", default=None)
+
     return parser
 
 
@@ -138,6 +166,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "align-config":
         config = load_alignment_config().to_dict()
+        payload = json.dumps(config, indent=2) + "\n"
+        if args.output:
+            Path(args.output).write_text(payload, encoding="utf-8")
+        else:
+            print(payload, end="")
+        return 0
+
+    if args.command == "score-config":
+        config = load_scoring_config().to_dict()
         payload = json.dumps(config, indent=2) + "\n"
         if args.output:
             Path(args.output).write_text(payload, encoding="utf-8")
@@ -182,6 +219,16 @@ def main(argv: list[str] | None = None) -> int:
             output_path=args.output,
             model=args.model,
             timeout_seconds=args.timeout_seconds,
+            quiet=args.quiet,
+        )
+
+    if args.command == "score-checkpoints":
+        return _run_scoring_from_checkpoints(
+            research_id=args.research_id,
+            policy_ids=args.policy_id,
+            source_dir=args.source_dir,
+            config_path=args.config,
+            output_path=args.output,
             quiet=args.quiet,
         )
 
@@ -306,6 +353,46 @@ def _run_alignment_from_checkpoints(
     else:
         if not quiet:
             print(f"saved final alignment checkpoint to {checkpoint_path}", file=sys.stderr)
+    return 0
+
+
+def _run_scoring_from_checkpoints(
+    *,
+    research_id: str,
+    policy_ids: list[str] | None,
+    source_dir: str | None,
+    config_path: str | None,
+    output_path: str | None,
+    quiet: bool,
+) -> int:
+    try:
+        config = load_scoring_config(config_path)
+        if source_dir:
+            config.input.alignment_checkpoint_dir = source_dir
+        scorer = Score(
+            config=config,
+            logger=ScoringLogger(enabled=not quiet),
+        )
+        result = scorer.run_from_checkpoints(
+            research_id=research_id,
+            policy_ids=policy_ids,
+            source_dir=source_dir,
+        )
+    except Exception as exc:
+        print(f"policydriver score failed: {exc}", file=sys.stderr)
+        return 1
+
+    payload = json.dumps(result, indent=2) + "\n"
+    checkpoint_path = Path(config.output.checkpoint_dir) / "final" / f"{research_id}.json"
+    if output_path:
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        output_file.write_text(payload, encoding="utf-8")
+        if not quiet:
+            print(f"saved scoring output to {output_file}", file=sys.stderr)
+    else:
+        if not quiet:
+            print(f"saved final scoring checkpoint to {checkpoint_path}", file=sys.stderr)
     return 0
 
 

@@ -1,0 +1,12 @@
+schema_version: "1.0"
+input:
+  alignment_checkpoint_dir: checkpoints/alignment/final
+  comparison_glob: "*.json"
+normalization:
+  prior_rate: 0.5
+  prior_strength: 2.0
+  pair_weight_mode: applicable_field_count
+  focus_metadata_key: focus_subrubrics
+output:
+  checkpoint_dir: checkpoints/scoring
+alignment_config_path: null
