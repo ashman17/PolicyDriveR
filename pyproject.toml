@@ -21,7 +21,7 @@ dev = [
 ]
 
 [project.scripts]
-policydriver = "quad.cli.main:main"
+policydriver = "cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
