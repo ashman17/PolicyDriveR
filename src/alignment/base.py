@@ -115,7 +115,9 @@ class Align:
         policy_sections: dict[str, dict[str, dict[str, Any]]],
     ) -> AlignmentReport:
         research_document_id = self._document_id_from_sections(research_sections)
-        self.checkpoints.set_scope(research_document_id)
+        policy_document_ids = sorted(policy_sections)
+        comparison_id = _comparison_id(research_document_id, policy_document_ids)
+        self.checkpoints.set_scope(comparison_id)
         tasks = self._build_tasks(research_sections, policy_sections)
         self.logger.log("tasks", f"scheduled {len(tasks)} alignment call(s)")
 
@@ -134,7 +136,7 @@ class Align:
 
         report = self._build_report(research_document_id, policy_sections, field_results)
         self.checkpoints.write_final(report)
-        self.logger.log("final", f"saved alignment report for {research_document_id}")
+        self.logger.log("final", f"saved alignment report for {comparison_id}")
         return report
 
     def _build_tasks(
@@ -619,7 +621,7 @@ class CheckpointStore:
     def write_final(self, report: AlignmentReport) -> Path:
         directory = self.root_dir / "final"
         directory.mkdir(parents=True, exist_ok=True)
-        filename = _safe_filename(report.research_document_id or "research")
+        filename = _comparison_id(report.research_document_id, report.policy_document_ids)
         path = directory / f"{filename}.json"
         path.write_text(
             json.dumps(report.to_dict(), indent=2, ensure_ascii=True) + "\n",
@@ -665,6 +667,11 @@ class CheckpointStore:
 def _safe_filename(value: str) -> str:
     cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("._")
     return cleaned or "call"
+
+
+def _comparison_id(research_document_id: str, policy_document_ids: list[str]) -> str:
+    joined = "__".join([research_document_id, *sorted(policy_document_ids)])
+    return _safe_filename(joined or "comparison")
 
 
 def _normalize_space(text: str) -> str:

@@ -293,7 +293,10 @@ def _run_alignment_from_checkpoints(
         return 1
 
     payload = json.dumps(result, indent=2) + "\n"
-    checkpoint_path = Path(config.model.checkpoint_dir) / "final" / f"{research_id}.json"
+    resolved_policy_ids = sorted(result.get("policy_document_ids", []))
+    comparison_name = "__".join([research_id, *resolved_policy_ids]) or research_id
+    safe_name = "".join(char if char.isalnum() or char in "._-" else "_" for char in comparison_name).strip("._")
+    checkpoint_path = Path(config.model.checkpoint_dir) / "final" / f"{safe_name or research_id}.json"
     if output_path:
         output_file = Path(output_path)
         output_file.parent.mkdir(parents=True, exist_ok=True)
