@@ -91,3 +91,43 @@ policydriver align-checkpoints --research-id research1 --policy-id policy3 --mod
 ```
 
 If `--policy-id` is omitted, all folders matching `policy*` under `checkpoints/extraction/pass3` are used.
+
+## scoring
+
+The scoring module combines the single-policy alignment reports for one research document and produces:
+
+- normalized subrubric scores out of 100
+- rubric scores out of 100
+- one overall score out of 100
+
+Run scoring from saved alignment checkpoints:
+
+```bash
+policydriver score-checkpoints --research-id research1
+```
+
+## viewer
+
+The viewer module renders one combined HTML dashboard per research paper. It uses:
+
+- all single-policy alignment reports for that research
+- the normalized scoring report when available
+- policy-level field results and chunk-level evidence traces for drill-down
+
+Print the default viewer config:
+
+```bash
+policydriver viewer-config
+```
+
+Render the dashboard:
+
+```bash
+policydriver render-dashboard --research-id research1
+```
+
+By default the HTML is written to:
+
+```text
+checkpoints/viewer/research1.html
+```

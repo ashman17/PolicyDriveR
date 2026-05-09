@@ -13,6 +13,9 @@ from extraction.base import Reader, SimpleLogger
 from extraction.config import load_extraction_config
 from scoring.base import Score, SimpleLogger as ScoringLogger
 from scoring.config import load_scoring_config
+from viewer.base import SimpleLogger as ViewerLogger
+from viewer.base import Viewer
+from viewer.config import load_viewer_config
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -144,6 +147,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
     score_config_cmd.add_argument("--output", help="Write config JSON to this file", default=None)
 
+    render_dashboard = subparsers.add_parser(
+        "render-dashboard",
+        help="Render one combined HTML dashboard per research paper using all policy comparisons",
+    )
+    render_dashboard.add_argument("--research-id", required=True, help="Research id used in alignment reports")
+    render_dashboard.add_argument(
+        "--alignment-source-dir",
+        default=None,
+        help="Override the alignment final directory used as dashboard input",
+    )
+    render_dashboard.add_argument(
+        "--scoring-source-dir",
+        default=None,
+        help="Override the scoring final directory used for cached score reports",
+    )
+    render_dashboard.add_argument("--config", help="JSON or YAML config path", default=None)
+    render_dashboard.add_argument("--output", help="Write HTML output to this file", default=None)
+    render_dashboard.add_argument("--title", help="Override the dashboard title", default=None)
+    render_dashboard.add_argument("--quiet", action="store_true", help="Suppress stage logs")
+
+    viewer_config_cmd = subparsers.add_parser(
+        "viewer-config",
+        help="Print the default viewer config so it can be customized",
+    )
+    viewer_config_cmd.add_argument("--output", help="Write config JSON to this file", default=None)
+
     return parser
 
 
@@ -175,6 +204,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "score-config":
         config = load_scoring_config().to_dict()
+        payload = json.dumps(config, indent=2) + "\n"
+        if args.output:
+            Path(args.output).write_text(payload, encoding="utf-8")
+        else:
+            print(payload, end="")
+        return 0
+
+    if args.command == "viewer-config":
+        config = load_viewer_config().to_dict()
         payload = json.dumps(config, indent=2) + "\n"
         if args.output:
             Path(args.output).write_text(payload, encoding="utf-8")
@@ -229,6 +267,17 @@ def main(argv: list[str] | None = None) -> int:
             source_dir=args.source_dir,
             config_path=args.config,
             output_path=args.output,
+            quiet=args.quiet,
+        )
+
+    if args.command == "render-dashboard":
+        return _run_viewer_from_checkpoints(
+            research_id=args.research_id,
+            alignment_source_dir=args.alignment_source_dir,
+            scoring_source_dir=args.scoring_source_dir,
+            config_path=args.config,
+            output_path=args.output,
+            title=args.title,
             quiet=args.quiet,
         )
 
@@ -393,6 +442,44 @@ def _run_scoring_from_checkpoints(
     else:
         if not quiet:
             print(f"saved final scoring checkpoint to {checkpoint_path}", file=sys.stderr)
+    return 0
+
+
+def _run_viewer_from_checkpoints(
+    *,
+    research_id: str,
+    alignment_source_dir: str | None,
+    scoring_source_dir: str | None,
+    config_path: str | None,
+    output_path: str | None,
+    title: str | None,
+    quiet: bool,
+) -> int:
+    try:
+        config = load_viewer_config(config_path)
+        if alignment_source_dir:
+            config.input.alignment_checkpoint_dir = alignment_source_dir
+        if scoring_source_dir:
+            config.input.scoring_checkpoint_dir = scoring_source_dir
+        viewer = Viewer(
+            config=config,
+            logger=ViewerLogger(enabled=not quiet),
+        )
+        html = viewer.run_from_checkpoints(
+            research_id=research_id,
+            alignment_source_dir=alignment_source_dir,
+            scoring_source_dir=scoring_source_dir,
+            title=title,
+        )
+    except Exception as exc:
+        print(f"policydriver viewer failed: {exc}", file=sys.stderr)
+        return 1
+
+    output_file = Path(output_path) if output_path else viewer.default_output_path(research_id)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(html, encoding="utf-8")
+    if not quiet:
+        print(f"saved dashboard to {output_file}", file=sys.stderr)
     return 0
 
 

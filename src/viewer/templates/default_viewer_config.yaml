@@ -1,0 +1,14 @@
+schema_version: "1.0"
+input:
+  alignment_checkpoint_dir: checkpoints/alignment/final
+  scoring_checkpoint_dir: checkpoints/scoring/final
+  comparison_glob: "*.json"
+output:
+  dashboard_dir: checkpoints/viewer
+ui:
+  title: PolicyDriveR Dashboard
+  max_highlights_per_category: 6
+  max_policy_insights_per_category: 6
+alignment_config_path: null
+scoring_config_path: null
+

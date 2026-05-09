@@ -33,6 +33,7 @@ where = ["src"]
 extraction = ["templates/*.yaml"]
 alignment = ["templates/*.yaml"]
 scoring = ["templates/*.yaml"]
+viewer = ["templates/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]
