@@ -5,10 +5,10 @@ input:
   comparison_glob: "*.json"
 output:
   dashboard_dir: checkpoints/viewer
+  document_root_dir: data
 ui:
   title: PolicyDriveR Dashboard
   max_highlights_per_category: 6
   max_policy_insights_per_category: 6
 alignment_config_path: null
 scoring_config_path: null
-

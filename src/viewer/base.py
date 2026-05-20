@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -52,6 +53,7 @@ class Viewer:
         research_id: str,
         alignment_source_dir: str | Path | None = None,
         scoring_source_dir: str | Path | None = None,
+        output_path: str | Path | None = None,
         title: str | None = None,
     ) -> str:
         alignment_reports = self._load_alignment_reports(
@@ -72,6 +74,7 @@ class Viewer:
             research_id=research_id,
             alignment_reports=alignment_reports,
             score_report=score_report,
+            output_path=Path(output_path) if output_path else self.default_output_path(research_id),
             title=title or self.config.ui.title,
         )
 
@@ -139,6 +142,7 @@ class Viewer:
         research_id: str,
         alignment_reports: list[dict[str, Any]],
         score_report: dict[str, Any],
+        output_path: Path,
         title: str,
     ) -> str:
         policy_ids = sorted(
@@ -182,6 +186,13 @@ class Viewer:
                 key=lambda item: item.get("policy_document_ids", ["policy"])[0],
             )
         ]
+        document_links = self._build_document_links(
+            document_ids=[research_id, *policy_ids],
+            output_path=output_path,
+        )
+        document_links_json = json.dumps(document_links, sort_keys=True)
+        research_tag = self._render_document_tag(research_id, variant="meta")
+        policy_set_tags = "".join(self._render_document_tag(policy_id, variant="meta") for policy_id in policy_ids)
         ordered_rubrics = sorted(
             self.alignment_config.rubrics,
             key=lambda rubric: rubric.name == "risk_alignment",
@@ -236,10 +247,113 @@ class Viewer:
       font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
       line-height: 1.45;
     }}
+    .app-shell {{
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      grid-template-areas: "main panel";
+      grid-template-columns: minmax(0, 1fr) 0;
+      transition: grid-template-columns 240ms ease;
+      align-items: start;
+    }}
+    .app-shell.viewer-open {{
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 42vw);
+    }}
+    .pdf-panel {{
+      grid-area: panel;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      border-right: 1px solid rgba(30, 27, 24, 0.12);
+      background:
+        linear-gradient(180deg, rgba(21, 21, 21, 0.98), rgba(39, 49, 58, 0.98)),
+        #172027;
+      color: #f5efe6;
+      transform: translateX(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 240ms ease, opacity 240ms ease;
+    }}
+    .app-shell.viewer-open .pdf-panel {{
+      transform: translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }}
+    .pdf-panel-inner {{
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }}
+    .pdf-panel-head {{
+      padding: 18px 18px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 250, 242, 0.12);
+    }}
+    .pdf-panel-copy {{
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }}
+    .pdf-panel-copy h2 {{
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.1;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    }}
+    .pdf-panel-copy p {{
+      margin: 0;
+      color: rgba(245, 239, 230, 0.76);
+      font-size: 0.92rem;
+    }}
+    .pdf-panel-actions {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }}
+    .pdf-action,
+    .pdf-close {{
+      appearance: none;
+      border: 1px solid rgba(255, 250, 242, 0.22);
+      border-radius: 999px;
+      background: rgba(255, 250, 242, 0.08);
+      color: #f5efe6;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 160ms ease, border-color 160ms ease;
+    }}
+    .pdf-action:hover,
+    .pdf-close:hover {{
+      background: rgba(255, 250, 242, 0.16);
+      border-color: rgba(255, 250, 242, 0.4);
+    }}
+    .pdf-panel-status {{
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255, 250, 242, 0.1);
+      color: rgba(245, 239, 230, 0.82);
+      font-size: 0.88rem;
+    }}
+    .pdf-frame {{
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #ffffff;
+    }}
     .shell {{
-      width: min(1760px, calc(100vw - 24px));
+      grid-area: main;
+      width: min(1760px, calc(100% - 24px));
       margin: 0 auto;
       padding: 28px 0 56px;
+      min-width: 0;
     }}
     .hero {{
       background: linear-gradient(145deg, #151515, #27313a);
@@ -614,7 +728,8 @@ class Viewer:
       gap: 8px;
     }}
     .pill,
-    .tag {{
+    .tag,
+    .doc-trigger {{
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -631,6 +746,42 @@ class Viewer:
     .tag {{
       text-transform: none;
       font-weight: 700;
+    }}
+    .doc-trigger {{
+      appearance: none;
+      cursor: pointer;
+      font: inherit;
+      text-decoration: none;
+    }}
+    .doc-trigger:hover {{
+      border-color: rgba(15, 118, 110, 0.38);
+      color: var(--accent);
+      background: #f3fbf8;
+    }}
+    .doc-trigger:focus-visible {{
+      outline: 2px solid rgba(15, 118, 110, 0.45);
+      outline-offset: 2px;
+    }}
+    .doc-trigger.meta {{
+      background: rgba(255, 250, 242, 0.08);
+      border-color: rgba(255, 250, 242, 0.18);
+      color: #f5efe6;
+    }}
+    .doc-trigger.meta:hover {{
+      background: rgba(255, 250, 242, 0.16);
+      border-color: rgba(255, 250, 242, 0.34);
+      color: #ffffff;
+    }}
+    .doc-trigger.heading {{
+      font-size: 1.25rem;
+      padding: 8px 12px;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--ink);
+    }}
+    .doc-trigger.heading:hover {{
+      color: var(--accent);
+      background: rgba(15, 118, 110, 0.08);
     }}
     .policy-card {{
       padding: 0;
@@ -752,7 +903,8 @@ class Viewer:
       padding: 12px;
     }}
     .trace-card strong {{
-      display: inline-flex;
+      display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       align-items: center;
       font-size: 0.76rem;
@@ -784,6 +936,23 @@ class Viewer:
       font-size: 0.88rem;
     }}
     @media (max-width: 1180px) {{
+      .app-shell,
+      .app-shell.viewer-open {{
+        grid-template-areas:
+          "panel"
+          "main";
+        grid-template-columns: 1fr;
+      }}
+      .pdf-panel {{
+        position: relative;
+        height: min(70vh, 720px);
+        border-right: 0;
+        border-bottom: 1px solid rgba(30, 27, 24, 0.12);
+        transform: translateY(-14px);
+      }}
+      .app-shell.viewer-open .pdf-panel {{
+        transform: translateY(0);
+      }}
       .hero,
       .overall-card,
       .policy-card > summary {{
@@ -818,7 +987,25 @@ class Viewer:
   </style>
 </head>
 <body>
-  <main class="shell">
+  <div class="app-shell" id="app-shell">
+    <aside class="pdf-panel" id="pdf-panel" aria-hidden="true">
+      <div class="pdf-panel-inner">
+        <div class="pdf-panel-head">
+          <div class="pdf-panel-copy">
+            <div class="eyebrow">Source PDF</div>
+            <h2 id="pdf-title">Select a document tag</h2>
+            <p id="pdf-subtitle">Click any `policy#` or `research#` tag to open the paper here.</p>
+          </div>
+          <div class="pdf-panel-actions">
+            <a class="pdf-action" id="pdf-open-new" href="#" target="_blank" rel="noopener noreferrer">Open Tab</a>
+            <button class="pdf-close" id="pdf-close" type="button">Close</button>
+          </div>
+        </div>
+        <div class="pdf-panel-status" id="pdf-status">Waiting for a document selection.</div>
+        <iframe class="pdf-frame" id="pdf-frame" title="Document viewer" src="about:blank"></iframe>
+      </div>
+    </aside>
+    <main class="shell">
     <section class="hero">
       <div>
         <div class="eyebrow">Combined Research Dashboard</div>
@@ -827,7 +1014,7 @@ class Viewer:
       <div class="meta-grid">
         <div class="meta-chip">
           <strong>Research</strong>
-          <span>{escape(research_id)}</span>
+          <span>{research_tag}</span>
         </div>
         <div class="meta-chip">
           <strong>Policies Compared</strong>
@@ -839,7 +1026,7 @@ class Viewer:
         </div>
         <div class="meta-chip" style="grid-column: 1 / -1;">
           <strong>Policy Set</strong>
-          <span>{escape(", ".join(policy_ids))}</span>
+          <span class="tag-row">{policy_set_tags}</span>
         </div>
       </div>
     </section>
@@ -874,7 +1061,70 @@ class Viewer:
       </div>
       <p class="footer-note">All evidence traces come from extraction checkpoints and preserve the original document id, section, field, chunk id, page, and exact text span.</p>
     </section>
-  </main>
+    </main>
+  </div>
+  <script>
+    const DOCUMENT_LINKS = {document_links_json};
+    (() => {{
+      const appShell = document.getElementById("app-shell");
+      const pdfPanel = document.getElementById("pdf-panel");
+      const pdfFrame = document.getElementById("pdf-frame");
+      const pdfTitle = document.getElementById("pdf-title");
+      const pdfSubtitle = document.getElementById("pdf-subtitle");
+      const pdfStatus = document.getElementById("pdf-status");
+      const pdfOpenNew = document.getElementById("pdf-open-new");
+      const pdfClose = document.getElementById("pdf-close");
+
+      function buildPdfUrl(documentId, page) {{
+        const record = DOCUMENT_LINKS[documentId];
+        if (!record) {{
+          return null;
+        }}
+        const pageNumber = Number(page);
+        if (Number.isFinite(pageNumber) && pageNumber >= 0) {{
+          return `${{record.href}}#page=${{pageNumber + 1}}`;
+        }}
+        return record.href;
+      }}
+
+      function openDocument(documentId, page) {{
+        const record = DOCUMENT_LINKS[documentId];
+        const url = buildPdfUrl(documentId, page);
+        if (!record || !url) {{
+          pdfStatus.textContent = `No PDF path is configured for ${{documentId}}.`;
+          return;
+        }}
+        appShell.classList.add("viewer-open");
+        pdfPanel.setAttribute("aria-hidden", "false");
+        pdfFrame.src = url;
+        pdfTitle.textContent = record.label;
+        pdfSubtitle.textContent = page === "" || page === undefined
+          ? `Viewing ${{record.label}}`
+          : `Viewing ${{record.label}} near page ${{Number(page) + 1}}`;
+        pdfStatus.textContent = `Loaded from ${{record.href}}`;
+        pdfOpenNew.href = url;
+      }}
+
+      document.addEventListener("click", (event) => {{
+        const trigger = event.target.closest("[data-document-id]");
+        if (!trigger) {{
+          return;
+        }}
+        event.preventDefault();
+        openDocument(trigger.dataset.documentId, trigger.dataset.page);
+      }});
+
+      pdfClose.addEventListener("click", () => {{
+        appShell.classList.remove("viewer-open");
+        pdfPanel.setAttribute("aria-hidden", "true");
+        pdfFrame.src = "about:blank";
+        pdfTitle.textContent = "Select a document tag";
+        pdfSubtitle.textContent = "Click any `policy#` or `research#` tag to open the paper here.";
+        pdfStatus.textContent = "Waiting for a document selection.";
+        pdfOpenNew.href = "#";
+      }});
+    }})();
+  </script>
 </body>
 </html>
 """
@@ -1100,7 +1350,7 @@ class Viewer:
 
     def _render_insight_item(self, insight: dict[str, Any]) -> str:
         policies = insight.get("policy_ids", [])
-        tags = "".join(f'<span class="pill">{escape(policy_id)}</span>' for policy_id in policies)
+        tags = "".join(self._render_document_tag(policy_id, variant="pill") for policy_id in policies)
         evidence_details = self._render_evidence_details(
             research_evidence=insight.get("research_evidence", []),
             policy_evidence=insight.get("policy_evidence", []),
@@ -1139,7 +1389,7 @@ class Viewer:
           <summary>
             <div class="policy-copy">
               <div class="eyebrow">Policy Comparison</div>
-              <h3>{escape(_humanize(policy_id))}</h3>
+              <h3>{self._render_document_tag(policy_id, label=_humanize(policy_id), variant="heading")}</h3>
               <p>{escape(report.get("rationale", "No rationale available."))}</p>
             </div>
             <div class="policy-score">
@@ -1237,19 +1487,68 @@ class Viewer:
             return f'<div class="empty">{escape(title)}: none attached.</div>'
         cards = []
         for trace in traces:
+            document_id = str(trace.get("document_id", "doc"))
             chunk_id = trace.get("chunk_id") or "chunk"
             page = trace.get("page")
             page_label = f"p.{page}" if page is not None else "page n/a"
-            label = f"{trace.get('document_id', 'doc')} · {trace.get('section', 'section')} · {trace.get('field_name', 'field')}"
+            label = f"{trace.get('section', 'section')} · {trace.get('field_name', 'field')}"
             cards.append(
                 f"""
                 <article class="trace-card">
-                  <strong>{escape(label)} · {escape(str(chunk_id))} · {escape(page_label)}</strong>
+                  <strong>{self._render_document_tag(document_id, variant="tag", page=page)} · {escape(label)} · {escape(str(chunk_id))} · {escape(page_label)}</strong>
                   <p>{escape(trace.get("text", ""))}</p>
                 </article>
                 """
             )
         return f'<div><div class="eyebrow">{escape(title)}</div><div class="evidence-list">{"".join(cards)}</div></div>'
+
+    def _build_document_links(
+        self,
+        *,
+        document_ids: list[str],
+        output_path: Path,
+    ) -> dict[str, dict[str, str]]:
+        links: dict[str, dict[str, str]] = {}
+        for document_id in document_ids:
+            href = self._document_href(document_id, output_path)
+            if not href:
+                continue
+            links[document_id] = {
+                "href": href,
+                "label": _humanize(document_id),
+            }
+        return links
+
+    def _document_href(self, document_id: str, output_path: Path) -> str | None:
+        repo_root = Path.cwd().resolve()
+        root_dir = (repo_root / self.config.output.document_root_dir).resolve()
+        lowered = document_id.lower()
+        if lowered.startswith("policy"):
+            target = root_dir / "policy" / f"{document_id}.pdf"
+        elif lowered.startswith("research"):
+            target = root_dir / "research" / f"{document_id}.pdf"
+        else:
+            target = root_dir / f"{document_id}.pdf"
+        output_parent = (repo_root / output_path).resolve().parent if not output_path.is_absolute() else output_path.resolve().parent
+        relative = os.path.relpath(target, output_parent)
+        return Path(relative).as_posix()
+
+    def _render_document_tag(
+        self,
+        document_id: str,
+        *,
+        label: str | None = None,
+        variant: str = "tag",
+        page: Any | None = None,
+    ) -> str:
+        classes = f"doc-trigger {variant}".strip()
+        page_attr = f' data-page="{escape(str(page))}"' if page is not None else ""
+        text = label or document_id
+        return (
+            f'<button class="{classes}" type="button" data-document-id="{escape(document_id)}"{page_attr}>'
+            f"{escape(text)}"
+            "</button>"
+        )
 
     def _aggregate_insights(self, reports: list[dict[str, Any]], field_name: str) -> list[dict[str, Any]]:
         merged: dict[str, dict[str, Any]] = {}

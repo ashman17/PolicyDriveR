@@ -33,10 +33,14 @@ class OutputConfig:
     """Output persistence settings."""
 
     dashboard_dir: str = "checkpoints/viewer"
+    document_root_dir: str = "data"
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "OutputConfig":
-        return cls(dashboard_dir=data.get("dashboard_dir", "checkpoints/viewer"))
+        return cls(
+            dashboard_dir=data.get("dashboard_dir", "checkpoints/viewer"),
+            document_root_dir=data.get("document_root_dir", "data"),
+        )
 
 
 @dataclass(slots=True)
@@ -137,4 +141,3 @@ def _get_yaml_module() -> Any:
     _require_yaml()
     assert yaml is not None
     return yaml
-

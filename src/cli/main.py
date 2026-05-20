@@ -469,6 +469,7 @@ def _run_viewer_from_checkpoints(
             research_id=research_id,
             alignment_source_dir=alignment_source_dir,
             scoring_source_dir=scoring_source_dir,
+            output_path=output_path,
             title=title,
         )
     except Exception as exc:
