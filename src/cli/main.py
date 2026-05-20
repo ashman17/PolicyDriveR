@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -167,6 +168,30 @@ def build_parser() -> argparse.ArgumentParser:
     render_dashboard.add_argument("--title", help="Override the dashboard title", default=None)
     render_dashboard.add_argument("--quiet", action="store_true", help="Suppress stage logs")
 
+    publish_dashboard = subparsers.add_parser(
+        "publish-dashboard-site",
+        help="Build a GitHub Pages-ready dashboard site with HTML and PDF assets",
+    )
+    publish_dashboard.add_argument("--research-id", required=True, help="Research id used in alignment reports")
+    publish_dashboard.add_argument(
+        "--alignment-source-dir",
+        default=None,
+        help="Override the alignment final directory used as dashboard input",
+    )
+    publish_dashboard.add_argument(
+        "--scoring-source-dir",
+        default=None,
+        help="Override the scoring final directory used for cached score reports",
+    )
+    publish_dashboard.add_argument("--config", help="JSON or YAML config path", default=None)
+    publish_dashboard.add_argument(
+        "--site-dir",
+        default="docs",
+        help="Directory to write the static site into",
+    )
+    publish_dashboard.add_argument("--title", help="Override the dashboard title", default=None)
+    publish_dashboard.add_argument("--quiet", action="store_true", help="Suppress stage logs")
+
     viewer_config_cmd = subparsers.add_parser(
         "viewer-config",
         help="Print the default viewer config so it can be customized",
@@ -277,6 +302,17 @@ def main(argv: list[str] | None = None) -> int:
             scoring_source_dir=args.scoring_source_dir,
             config_path=args.config,
             output_path=args.output,
+            title=args.title,
+            quiet=args.quiet,
+        )
+
+    if args.command == "publish-dashboard-site":
+        return _publish_dashboard_site(
+            research_id=args.research_id,
+            alignment_source_dir=args.alignment_source_dir,
+            scoring_source_dir=args.scoring_source_dir,
+            config_path=args.config,
+            site_dir=args.site_dir,
             title=args.title,
             quiet=args.quiet,
         )
@@ -481,6 +517,58 @@ def _run_viewer_from_checkpoints(
     output_file.write_text(html, encoding="utf-8")
     if not quiet:
         print(f"saved dashboard to {output_file}", file=sys.stderr)
+    return 0
+
+
+def _publish_dashboard_site(
+    *,
+    research_id: str,
+    alignment_source_dir: str | None,
+    scoring_source_dir: str | None,
+    config_path: str | None,
+    site_dir: str,
+    title: str | None,
+    quiet: bool,
+) -> int:
+    output_dir = Path(site_dir)
+    output_file = output_dir / "index.html"
+    site_data_dir = output_dir / "data"
+    source_data_dir = Path("data")
+
+    if not source_data_dir.exists():
+        print("policydriver viewer failed: source data directory 'data' does not exist", file=sys.stderr)
+        return 1
+
+    try:
+        config = load_viewer_config(config_path)
+        if alignment_source_dir:
+            config.input.alignment_checkpoint_dir = alignment_source_dir
+        if scoring_source_dir:
+            config.input.scoring_checkpoint_dir = scoring_source_dir
+        config.output.document_root_dir = str(site_data_dir)
+        viewer = Viewer(
+            config=config,
+            logger=ViewerLogger(enabled=not quiet),
+        )
+        html = viewer.run_from_checkpoints(
+            research_id=research_id,
+            alignment_source_dir=alignment_source_dir,
+            scoring_source_dir=scoring_source_dir,
+            output_path=output_file,
+            title=title,
+        )
+    except Exception as exc:
+        print(f"policydriver viewer failed: {exc}", file=sys.stderr)
+        return 1
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(html, encoding="utf-8")
+    shutil.rmtree(site_data_dir, ignore_errors=True)
+    shutil.copytree(source_data_dir, site_data_dir)
+    (output_dir / ".nojekyll").write_text("", encoding="utf-8")
+
+    if not quiet:
+        print(f"saved GitHub Pages site to {output_dir}", file=sys.stderr)
     return 0
 
 

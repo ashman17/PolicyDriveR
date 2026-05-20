@@ -131,3 +131,19 @@ By default the HTML is written to:
 ```text
 checkpoints/viewer/research1.html
 ```
+
+Build a GitHub Pages-ready site under `docs/` with the dashboard plus PDF assets:
+
+```bash
+policydriver publish-dashboard-site --research-id research1
+```
+
+That command writes:
+
+```text
+docs/index.html
+docs/data/...
+docs/.nojekyll
+```
+
+For GitHub Pages, set the publishing source to the `/docs` folder on your branch. The root of this repository is not the deploy target.

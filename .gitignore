@@ -12,3 +12,8 @@ src/*.egg-info/
 src/quad.egg-info/
 src/policydriver.egg-info/
 data/
+!docs/
+!docs/index.html
+!docs/.nojekyll
+!docs/data/
+!docs/data/**
