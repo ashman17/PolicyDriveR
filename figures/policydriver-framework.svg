@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+  <title id="title">PolicyDriveR framework</title>
+  <desc id="desc">A plain-language overview of how PolicyDriveR turns research and policy documents into comparable evidence and scores.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#5c84a0" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .title { font: 800 38px 'Avenir Next', 'Segoe UI', sans-serif; fill: #fffaf3; letter-spacing: 0.02em; }
+      .subtitle { font: 600 18px 'Avenir Next', 'Segoe UI', sans-serif; fill: rgba(255,250,243,0.88); }
+      .section-title { font: 800 28px 'Avenir Next', 'Segoe UI', sans-serif; fill: #161412; letter-spacing: 0.08em; text-transform: uppercase; }
+      .module-title { font: 800 24px 'Avenir Next', 'Segoe UI', sans-serif; fill: #181512; }
+      .module-copy { font: 600 17px 'Avenir Next', 'Segoe UI', sans-serif; fill: #3f382f; }
+      .step-title { font: 800 17px 'Avenir Next', 'Segoe UI', sans-serif; fill: #171412; }
+      .step-copy { font: 600 15px 'Avenir Next', 'Segoe UI', sans-serif; fill: #4d453d; }
+      .small { font: 700 13px 'Avenir Next', 'Segoe UI', sans-serif; fill: #62584e; letter-spacing: 0.06em; text-transform: uppercase; }
+      .artifact { font: 700 14px 'SFMono-Regular', Menlo, Consolas, monospace; fill: #2f2a25; }
+      .legend { font: 700 15px 'Avenir Next', 'Segoe UI', sans-serif; fill: #453d35; }
+      .box { stroke: rgba(48,88,112,0.18); stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1080" fill="#d7efff"/>
+
+  <text x="82" y="78" class="subtitle">From research papers and policy documents to shared evidence and comparable scores.</text>
+
+  <g transform="translate(60 200)">
+    <text x="0" y="0" class="section-title">Inputs And Controls</text>
+
+    <rect x="0" y="34" width="300" height="164" rx="26" fill="#ffffff" class="box" filter="url(#shadow)"/>
+    <text x="28" y="76" class="module-title">Research Documents</text>
+    <text x="28" y="112" class="module-copy">PDFs or text files</text>
+
+    <rect x="0" y="222" width="300" height="164" rx="26" fill="#ffffff" class="box" filter="url(#shadow)"/>
+    <text x="28" y="264" class="module-title">Policy Documents</text>
+    <text x="28" y="300" class="module-copy">One or more policy files</text>
+
+    <rect x="0" y="432" width="300" height="272" rx="26" fill="#ffffff" class="box" filter="url(#shadow)"/>
+    <text x="28" y="474" class="module-title">Settings</text>
+    <rect x="24" y="500" width="252" height="40" rx="14" fill="#85d6d3" class="box"/>
+    <text x="150" y="525" text-anchor="middle" class="module-copy">Sections and fields to capture</text>
+    <rect x="24" y="550" width="252" height="40" rx="14" fill="#85d6d3" class="box"/>
+    <text x="150" y="575" text-anchor="middle" class="module-copy">Rubrics, weights, and rules</text>
+    <rect x="24" y="600" width="252" height="40" rx="14" fill="#85d6d3" class="box"/>
+    <text x="150" y="625" text-anchor="middle" class="module-copy">Models, prompts, and chunks</text>
+    <rect x="24" y="650" width="252" height="40" rx="14" fill="#85d6d3" class="box"/>
+    <text x="150" y="675" text-anchor="middle" class="module-copy">Scoring and output settings</text>
+  </g>
+
+  <g transform="translate(402 200)">
+    <text x="260" y="0" text-anchor="middle" class="section-title">Extraction</text>
+    <rect x="0" y="34" width="520" height="730" rx="30" fill="#ffffff" class="box" filter="url(#shadow)"/>
+    <text x="30" y="78" class="module-title">
+      <tspan x="30" dy="0">Turn Documents Into</tspan>
+      <tspan x="30" dy="28">Structured Evidence</tspan>
+    </text>
+    <text x="30" y="132" class="module-copy">The same process is used for research and policy files</text>
+
+    <rect x="30" y="164" width="460" height="82" rx="20" fill="#85d6d3" class="box"/>
+    <text x="54" y="196" class="step-title">Read the document</text>
+    <text x="54" y="224" class="step-copy">Recover page-level text from PDFs or text files</text>
+
+    <rect x="30" y="268" width="460" height="96" rx="20" fill="#85d6d3" class="box"/>
+    <text x="54" y="300" class="step-title">Break it into usable parts</text>
+    <text x="54" y="328" class="step-copy">
+      <tspan x="54" dy="0">Split into chunks and skip sections like</tspan>
+      <tspan x="54" dy="22">references or related work</tspan>
+    </text>
+
+    <rect x="30" y="386" width="460" height="108" rx="20" fill="#85d6d3" class="box"/>
+    <text x="54" y="418" class="step-title">Label each chunk</text>
+    <text x="54" y="446" class="step-copy">
+      <tspan x="54" dy="0">Identify whether a chunk is about the problem, methods,</tspan>
+      <tspan x="54" dy="22">data, governance, risk, impact, and so on</tspan>
+    </text>
+
+    <rect x="30" y="516" width="460" height="124" rx="20" fill="#85d6d3" class="box"/>
+    <text x="54" y="548" class="step-title">Pull out key details</text>
+    <text x="54" y="576" class="step-copy">
+      <tspan x="54" dy="0">Extract the needed fields, evidence snippets,</tspan>
+      <tspan x="54" dy="22">and confidence values</tspan>
+    </text>
+
+    <rect x="30" y="662" width="460" height="80" rx="20" fill="#85d6d3" class="box"/>
+    <text x="54" y="694" class="step-title">Group findings by section</text>
+    <text x="54" y="722" class="step-copy">Save one structured file for each section of the document</text>
+
+  </g>
+
+  <g transform="translate(970 200)">
+    <text x="200" y="0" text-anchor="middle" class="section-title">Alignment</text>
+    <rect x="0" y="34" width="400" height="730" rx="30" fill="#ffffff" class="box" filter="url(#shadow)"/>
+    <text x="28" y="78" class="module-title">
+      <tspan x="28" dy="0">Compare Research</tspan>
+      <tspan x="28" dy="28">With Policy</tspan>
+    </text>
+    <text x="28" y="132" class="module-copy">
+      <tspan x="28" dy="0">Use the extracted sections from one research</tspan>
+      <tspan x="28" dy="22">paper and several policies</tspan>
+    </text>
+
+    <rect x="28" y="170" width="344" height="100" rx="20" fill="#85d6d3" class="box"/>
+    <text x="50" y="204" class="step-title">Match like with like</text>
+    <text x="50" y="232" class="step-copy">
+      <tspan x="50" dy="0">Compare the same section and field across</tspan>
+      <tspan x="50" dy="22">research and policy documents</tspan>
+    </text>
+
+    <rect x="28" y="292" width="344" height="118" rx="20" fill="#85d6d3" class="box"/>
+    <text x="50" y="326" class="step-title">Judge the fit</text>
+    <text x="50" y="354" class="step-copy">
+      <tspan x="50" dy="0">Use the extracted text and rubric definitions</tspan>
+      <tspan x="50" dy="22">to decide where the fit is strong or weak</tspan>
+    </text>
+
+    <rect x="28" y="432" width="344" height="172" rx="20" fill="#85d6d3" class="box"/>
+    <text x="50" y="466" class="step-title">Produce traceable insights</text>
+    <text x="50" y="494" class="step-copy">Shared features</text>
+    <text x="50" y="522" class="step-copy">Policy needs not covered</text>
+    <text x="50" y="550" class="step-copy">Research strengths not yet used</text>
+    <text x="50" y="578" class="step-copy">Bridge actions with source evidence</text>
+
+    <rect x="28" y="626" width="344" height="110" rx="20" fill="#85d6d3" class="box"/>
+    <text x="50" y="660" class="step-title">Score each criterion</text>
+    <text x="50" y="688" class="step-copy">
+      <tspan x="50" dy="0">Assign simple yes or no judgments</tspan>
+      <tspan x="50" dy="22">for each alignment criterion</tspan>
+    </text>
+
+  </g>
+
+  <g transform="translate(1414 200)">
+    <text x="163" y="0" text-anchor="middle" class="section-title">Scoring</text>
+
+    <rect x="0" y="34" width="326" height="360" rx="30" fill="#ffffff" class="box" filter="url(#shadow)"/>
+    <text x="26" y="78" class="module-title">Scoring</text>
+    <text x="26" y="112" class="module-copy">
+      <tspan x="26" dy="0">Combine many policy comparisons</tspan>
+      <tspan x="26" dy="22">into one scorecard</tspan>
+    </text>
+    <rect x="24" y="156" width="278" height="90" rx="18" fill="#85d6d3" class="box"/>
+    <text x="44" y="185" class="step-title">What is being scored</text>
+    <text x="44" y="210" class="step-copy">
+      <tspan x="44" dy="0">Each sub-criterion, each rubric,</tspan>
+      <tspan x="44" dy="22">and the overall research-to-policy fit</tspan>
+    </text>
+    <rect x="24" y="258" width="278" height="118" rx="18" fill="#85d6d3" class="box"/>
+    <text x="52" y="277" class="step-title">How the scoring works</text>
+    <text x="52" y="308" class="step-copy">
+      <tspan x="52" dy="0">Combine results across policies,</tspan>
+      <tspan x="52" dy="22">apply weights, and normalize</tspan>
+      <tspan x="52" dy="22">the final scores to 100</tspan>
+    </text>
+  </g>
+</svg>
