@@ -38,6 +38,12 @@ Run extraction with the default Ollama setup:
 policydriver extract-sample --model llama3:8b
 ```
 
+If Ollama is listening on a non-default port, pass it directly on the CLI:
+
+```bash
+policydriver extract-sample --model llama3:8b --ollama-port 22456
+```
+
 Force the offline heuristic fallback:
 
 ```bash
@@ -54,6 +60,12 @@ Run extraction on any file with explicit flags:
 
 ```bash
 policydriver extract --file data/research/research1.pdf --model llama3:8b
+```
+
+You can also override the Ollama port for direct extraction runs:
+
+```bash
+policydriver extract --file data/research/research1.pdf --model llama3:8b --ollama-port 22456
 ```
 
 LLM calls are checkpointed by default, so reruns automatically reuse completed calls:
@@ -88,6 +100,12 @@ Run alignment from extraction pass3 checkpoints:
 
 ```bash
 policydriver align-checkpoints --research-id research1 --policy-id policy3 --model gemma3:4b
+```
+
+If Ollama is exposed on a different port, pass it the same way:
+
+```bash
+policydriver align-checkpoints --research-id research1 --policy-id policy3 --model gemma3:4b --ollama-port 22456
 ```
 
 If `--policy-id` is omitted, all folders matching `policy*` under `checkpoints/extraction/pass3` are used.

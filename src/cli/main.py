@@ -7,6 +7,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 from alignment.base import Align, SimpleLogger as AlignmentLogger
 from alignment.config import load_alignment_config
@@ -48,6 +49,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     extract.add_argument("--model", help="Primary Ollama model", default=None)
     extract.add_argument("--comparison-model", help="Second-pass comparison model", default=None)
+    extract.add_argument(
+        "--ollama-port",
+        type=int,
+        default=None,
+        help="Override the Ollama port used for API calls",
+    )
     extract.add_argument("--quiet", action="store_true", help="Suppress stage logs")
 
     extract_sample = subparsers.add_parser(
@@ -81,6 +88,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     extract_sample.add_argument("--model", help="Primary Ollama model", default=None)
     extract_sample.add_argument("--comparison-model", help="Second-pass comparison model", default=None)
+    extract_sample.add_argument(
+        "--ollama-port",
+        type=int,
+        default=None,
+        help="Override the Ollama port used for API calls",
+    )
     extract_sample.add_argument("--quiet", action="store_true", help="Suppress stage logs")
 
     config_cmd = subparsers.add_parser(
@@ -113,6 +126,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         help="HTTP timeout for each Ollama alignment call",
+    )
+    align.add_argument(
+        "--ollama-port",
+        type=int,
+        default=None,
+        help="Override the Ollama port used for API calls",
     )
     align.add_argument("--quiet", action="store_true", help="Suppress stage logs")
 
@@ -255,6 +274,7 @@ def main(argv: list[str] | None = None) -> int:
             backend=args.backend,
             model=args.model,
             comparison_model=args.comparison_model,
+            ollama_port=args.ollama_port,
             quiet=args.quiet,
         )
 
@@ -270,6 +290,7 @@ def main(argv: list[str] | None = None) -> int:
             backend=args.backend,
             model=args.model,
             comparison_model=args.comparison_model,
+            ollama_port=args.ollama_port,
             quiet=args.quiet,
         )
 
@@ -282,6 +303,7 @@ def main(argv: list[str] | None = None) -> int:
             output_path=args.output,
             model=args.model,
             timeout_seconds=args.timeout_seconds,
+            ollama_port=args.ollama_port,
             quiet=args.quiet,
         )
 
@@ -331,6 +353,7 @@ def _run_extraction(
     backend: str | None,
     model: str | None,
     comparison_model: str | None,
+    ollama_port: int | None,
     quiet: bool,
 ) -> int:
     try:
@@ -341,6 +364,8 @@ def _run_extraction(
             config.model.model = model
         if comparison_model:
             config.model.comparison_model = comparison_model
+        if ollama_port is not None:
+            config.model.base_url = _override_ollama_port(config.model.base_url, ollama_port)
         if timeout_seconds is not None:
             config.model.timeout_seconds = timeout_seconds
         reader = Reader(
@@ -401,12 +426,15 @@ def _run_alignment_from_checkpoints(
     output_path: str | None,
     model: str | None,
     timeout_seconds: int | None,
+    ollama_port: int | None,
     quiet: bool,
 ) -> int:
     try:
         config = load_alignment_config(config_path)
         if model:
             config.model.model = model
+        if ollama_port is not None:
+            config.model.base_url = _override_ollama_port(config.model.base_url, ollama_port)
         if timeout_seconds is not None:
             config.model.timeout_seconds = timeout_seconds
         if source_dir:
@@ -439,6 +467,19 @@ def _run_alignment_from_checkpoints(
         if not quiet:
             print(f"saved final alignment checkpoint to {checkpoint_path}", file=sys.stderr)
     return 0
+
+
+def _override_ollama_port(base_url: str, port: int) -> str:
+    if port <= 0:
+        raise ValueError("Ollama port must be a positive integer.")
+
+    parts = urlsplit(base_url or "http://localhost:11434")
+    scheme = parts.scheme or "http"
+    hostname = parts.hostname or "localhost"
+    if ":" in hostname and not hostname.startswith("["):
+        hostname = f"[{hostname}]"
+    netloc = f"{hostname}:{port}"
+    return urlunsplit((scheme, netloc, parts.path, parts.query, parts.fragment))
 
 
 def _run_scoring_from_checkpoints(
