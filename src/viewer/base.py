@@ -191,6 +191,8 @@ class Viewer:
             output_path=output_path,
         )
         document_links_json = json.dumps(document_links, sort_keys=True)
+        chunk_text_map = self._build_chunk_text_map([research_id, *policy_ids])
+        chunk_text_map_json = json.dumps(chunk_text_map, sort_keys=True)
         research_tag = self._render_document_tag(research_id, variant="meta")
         policy_set_tags = "".join(self._render_document_tag(policy_id, variant="meta") for policy_id in policy_ids)
         ordered_rubrics = sorted(
@@ -234,6 +236,7 @@ class Viewer:
       --warm: #b45309;
       --shadow: 0 18px 48px rgba(22, 18, 13, 0.12);
       --radius: 24px;
+      --panel-width: minmax(320px, 30vw);
     }}
     * {{ box-sizing: border-box; }}
     html {{ scroll-behavior: smooth; }}
@@ -257,7 +260,7 @@ class Viewer:
       align-items: start;
     }}
     .app-shell.viewer-open {{
-      grid-template-columns: minmax(0, 1fr) minmax(320px, 42vw);
+      grid-template-columns: minmax(0, 1fr) var(--panel-width);
     }}
     .pdf-panel {{
       grid-area: panel;
@@ -274,6 +277,30 @@ class Viewer:
       opacity: 0;
       pointer-events: none;
       transition: transform 240ms ease, opacity 240ms ease;
+    }}
+    .pdf-resizer {{
+      position: absolute;
+      top: 0;
+      left: -7px;
+      width: 14px;
+      height: 100%;
+      cursor: col-resize;
+      z-index: 2;
+      touch-action: none;
+    }}
+    .pdf-resizer::before {{
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 6px;
+      width: 2px;
+      height: 100%;
+      background: rgba(255, 250, 242, 0.16);
+      transition: background 160ms ease;
+    }}
+    .pdf-resizer:hover::before,
+    .pdf-resizer.dragging::before {{
+      background: rgba(255, 250, 242, 0.45);
     }}
     .app-shell.viewer-open .pdf-panel {{
       transform: translateX(0);
@@ -342,11 +369,46 @@ class Viewer:
       color: rgba(245, 239, 230, 0.82);
       font-size: 0.88rem;
     }}
-    .pdf-frame {{
-      width: 100%;
+    .pdf-viewer {{
+      position: relative;
       height: 100%;
-      border: 0;
+      overflow: auto;
+      padding: 18px;
+      background: linear-gradient(180deg, #243039, #1b242c);
+    }}
+    .pdf-stage {{
+      position: relative;
+      width: 100%;
+      min-height: 100%;
+      display: grid;
+      align-content: start;
+      justify-items: center;
+      gap: 18px;
+    }}
+    .pdf-page-wrap {{
+      position: relative;
+      width: fit-content;
+      max-width: 100%;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
       background: #ffffff;
+    }}
+    .pdf-canvas {{
+      display: block;
+      max-width: 100%;
+      height: auto;
+      background: #ffffff;
+    }}
+    .pdf-highlight-layer {{
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }}
+    .pdf-highlight {{
+      position: absolute;
+      border-radius: 4px;
+      background: rgba(255, 214, 10, 0.35);
+      outline: 1px solid rgba(255, 214, 10, 0.8);
+      box-shadow: 0 0 0 1px rgba(120, 85, 0, 0.1);
     }}
     .shell {{
       grid-area: main;
@@ -747,6 +809,9 @@ class Viewer:
       text-transform: none;
       font-weight: 700;
     }}
+    .pill.doc-trigger {{
+      font-weight: 800;
+    }}
     .doc-trigger {{
       appearance: none;
       cursor: pointer;
@@ -950,6 +1015,9 @@ class Viewer:
         border-bottom: 1px solid rgba(30, 27, 24, 0.12);
         transform: translateY(-14px);
       }}
+      .pdf-resizer {{
+        display: none;
+      }}
       .app-shell.viewer-open .pdf-panel {{
         transform: translateY(0);
       }}
@@ -989,6 +1057,7 @@ class Viewer:
 <body>
   <div class="app-shell" id="app-shell">
     <aside class="pdf-panel" id="pdf-panel" aria-hidden="true">
+      <div class="pdf-resizer" id="pdf-resizer" aria-hidden="true"></div>
       <div class="pdf-panel-inner">
         <div class="pdf-panel-head">
           <div class="pdf-panel-copy">
@@ -1002,7 +1071,12 @@ class Viewer:
           </div>
         </div>
         <div class="pdf-panel-status" id="pdf-status">Waiting for a document selection.</div>
-        <iframe class="pdf-frame" id="pdf-frame" title="Document viewer" src="about:blank"></iframe>
+        <div class="pdf-viewer" id="pdf-viewer">
+          <div class="pdf-stage" id="pdf-stage">
+            <div class="pdf-page-wrap" id="pdf-page-wrap" hidden>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
     <main class="shell">
@@ -1063,46 +1137,390 @@ class Viewer:
     </section>
     </main>
   </div>
-  <script>
+  <script type="module">
+    import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.min.mjs";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs";
+
     const DOCUMENT_LINKS = {document_links_json};
+    const CHUNK_TEXTS = {chunk_text_map_json};
     (() => {{
       const appShell = document.getElementById("app-shell");
       const pdfPanel = document.getElementById("pdf-panel");
-      const pdfFrame = document.getElementById("pdf-frame");
+      const pdfViewer = document.getElementById("pdf-viewer");
+      const pdfStage = document.getElementById("pdf-stage");
       const pdfTitle = document.getElementById("pdf-title");
       const pdfSubtitle = document.getElementById("pdf-subtitle");
       const pdfStatus = document.getElementById("pdf-status");
       const pdfOpenNew = document.getElementById("pdf-open-new");
       const pdfClose = document.getElementById("pdf-close");
+      const pdfResizer = document.getElementById("pdf-resizer");
+      const mobileQuery = window.matchMedia("(max-width: 1180px)");
+      const minPanelWidth = 320;
+      const maxPanelRatio = 0.7;
+      const pdfCache = new Map();
+      let currentPdf = null;
+      let currentDocumentId = null;
+      let currentPageNumber = 1;
+      let currentEvidenceText = "";
+      let renderToken = 0;
+      let resizeTimer = null;
 
-      function buildPdfUrl(documentId, page) {{
+      function setPanelWidth(width) {{
+        const boundedWidth = Math.min(
+          Math.max(width, minPanelWidth),
+          Math.floor(window.innerWidth * maxPanelRatio),
+        );
+        document.documentElement.style.setProperty("--panel-width", `${{boundedWidth}}px`);
+      }}
+
+      function resetPanelWidth() {{
+        document.documentElement.style.setProperty("--panel-width", "minmax(320px, 30vw)");
+      }}
+
+      function buildPdfUrl(documentId) {{
         const record = DOCUMENT_LINKS[documentId];
         if (!record) {{
           return null;
         }}
-        const pageNumber = Number(page);
-        if (Number.isFinite(pageNumber) && pageNumber >= 0) {{
-          return `${{record.href}}#page=${{pageNumber + 1}}`;
-        }}
         return record.href;
       }}
 
-      function openDocument(documentId, page) {{
+      function normalizeText(value) {{
+        return String(value || "")
+          .toLowerCase()
+          .replace(/[^\p{{L}}\p{{N}}\s]+/gu, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }}
+
+      function buildNormalizedPageIndex(items) {{
+        let text = "";
+        const charToItem = [];
+
+        items.forEach((item, index) => {{
+          const normalized = normalizeText(item.str);
+          if (!normalized) {{
+            return;
+          }}
+          if (text && !text.endsWith(" ")) {{
+            text += " ";
+            charToItem.push(index);
+          }}
+          for (const char of normalized) {{
+            text += char;
+            charToItem.push(index);
+          }}
+        }});
+
+        return {{ text, charToItem }};
+      }}
+
+      function buildHighlightIndexes(items, evidenceText) {{
+        const normalizedEvidence = normalizeText(evidenceText);
+        if (!normalizedEvidence) {{
+          return new Set();
+        }}
+
+        const pageIndex = buildNormalizedPageIndex(items);
+        const matchStart = pageIndex.text.indexOf(normalizedEvidence);
+        if (matchStart >= 0) {{
+          const matchEnd = matchStart + normalizedEvidence.length;
+          const matchedItems = new Set();
+          for (let i = matchStart; i < matchEnd; i += 1) {{
+            const itemIndex = pageIndex.charToItem[i];
+            if (itemIndex !== undefined) {{
+              matchedItems.add(itemIndex);
+            }}
+          }}
+          if (matchedItems.size) {{
+            return matchedItems;
+          }}
+        }}
+
+        const evidenceTokens = new Set(
+          normalizedEvidence.split(" ").filter((token) => token.length >= 4),
+        );
+        const fallbackMatches = new Set();
+        items.forEach((item, index) => {{
+          const normalizedItem = normalizeText(item.str);
+          if (!normalizedItem) {{
+            return;
+          }}
+          for (const token of evidenceTokens) {{
+            if (normalizedItem.includes(token)) {{
+              fallbackMatches.add(index);
+              break;
+            }}
+          }}
+        }});
+        return fallbackMatches;
+      }}
+
+      function clearPdfStage() {{
+        pdfStage.innerHTML = "";
+      }}
+
+      function setPdfError(message) {{
+        clearPdfStage();
+        pdfStatus.textContent = message;
+      }}
+
+      function scrollViewerToTarget(target) {{
+        if (!target) {{
+          return;
+        }}
+        let relativeTop = 0;
+        let node = target;
+        while (node && node !== pdfViewer) {{
+          relativeTop += node.offsetTop || 0;
+          node = node.offsetParent;
+        }}
+        const topPadding = 28;
+        pdfViewer.scrollTo({{
+          top: Math.max(0, relativeTop - topPadding),
+          behavior: "smooth",
+        }});
+      }}
+
+      function getViewportScale(page) {{
+        const unscaledViewport = page.getViewport({{ scale: 1 }});
+        const availableWidth = Math.max(pdfViewer.clientWidth - 36, 220);
+        return availableWidth / unscaledViewport.width;
+      }}
+
+      function waitForPanelOpen() {{
+        return new Promise((resolve) => {{
+          if (mobileQuery.matches || !appShell.classList.contains("viewer-open")) {{
+            window.requestAnimationFrame(() => resolve());
+            return;
+          }}
+
+          let settled = false;
+          const finish = () => {{
+            if (settled) {{
+              return;
+            }}
+            settled = true;
+            pdfPanel.removeEventListener("transitionend", onTransitionEnd);
+            resolve();
+          }};
+
+          const onTransitionEnd = (event) => {{
+            if (event.target === pdfPanel || event.target === appShell) {{
+              finish();
+            }}
+          }};
+
+          pdfPanel.addEventListener("transitionend", onTransitionEnd);
+          window.setTimeout(finish, 280);
+        }});
+      }}
+
+      function waitForViewerWidthStable() {{
+        return new Promise((resolve) => {{
+          let frameCount = 0;
+          let stableFrames = 0;
+          let previousWidth = 0;
+
+          const tick = () => {{
+            const width = pdfViewer.clientWidth;
+            if (Math.abs(width - previousWidth) <= 2) {{
+              stableFrames += 1;
+            }} else {{
+              stableFrames = 0;
+            }}
+            previousWidth = width;
+            frameCount += 1;
+
+            if (stableFrames >= 2 || frameCount >= 12) {{
+              resolve();
+              return;
+            }}
+            window.requestAnimationFrame(tick);
+          }};
+
+          window.requestAnimationFrame(tick);
+        }});
+      }}
+
+      async function loadPdf(record) {{
+        if (pdfCache.has(record.href)) {{
+          return pdfCache.get(record.href);
+        }}
+        const pdfPromise = (async () => {{
+          if (window.location.protocol === "file:") {{
+            throw new Error("PDF highlighting needs an HTTP(S) page. Open this dashboard through GitHub Pages or a local web server.");
+          }}
+          const response = await fetch(record.href, {{ cache: "force-cache" }});
+          if (!response.ok) {{
+            throw new Error(`PDF request failed (${{response.status}} ${{response.statusText}}) for ${{record.href}}.`);
+          }}
+          const data = new Uint8Array(await response.arrayBuffer());
+          const loadingTask = pdfjsLib.getDocument({{ data }});
+          return loadingTask.promise;
+        }})().catch((error) => {{
+          pdfCache.delete(record.href);
+          throw error;
+        }});
+        pdfCache.set(record.href, pdfPromise);
+        return pdfPromise;
+      }}
+
+      function renderHighlightLayer(highlightLayer, viewport, textContent, evidenceText) {{
+        const matchedIndexes = buildHighlightIndexes(textContent.items, evidenceText);
+        highlightLayer.innerHTML = "";
+        if (!matchedIndexes.size) {{
+          return [];
+        }}
+
+        const fragment = document.createDocumentFragment();
+        const highlightElements = [];
+        textContent.items.forEach((item, index) => {{
+          if (!matchedIndexes.has(index)) {{
+            return;
+          }}
+          const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+          const fontHeight = Math.hypot(tx[2], tx[3]);
+          const left = tx[4];
+          const top = tx[5] - fontHeight;
+          const width = Math.max(item.width * viewport.scale, 6);
+          const height = Math.max(fontHeight, 10);
+          const box = document.createElement("div");
+          box.className = "pdf-highlight";
+          box.style.left = `${{left}}px`;
+          box.style.top = `${{top}}px`;
+          box.style.width = `${{width}}px`;
+          box.style.height = `${{height}}px`;
+          fragment.appendChild(box);
+          highlightElements.push(box);
+        }});
+        highlightLayer.appendChild(fragment);
+        return highlightElements;
+      }}
+
+      async function renderCurrentPdf() {{
+        if (!currentPdf || !currentDocumentId) {{
+          clearPdfStage();
+          return;
+        }}
+        try {{
+          const token = ++renderToken;
+          pdfStatus.textContent = "Rendering PDF...";
+          clearPdfStage();
+          const safePageNumber = Math.min(
+            Math.max(currentPageNumber, 1),
+            currentPdf.numPages,
+          );
+          let targetPageWrap = null;
+          let firstHighlight = null;
+
+          for (let pageNumber = 1; pageNumber <= currentPdf.numPages; pageNumber += 1) {{
+            const page = await currentPdf.getPage(pageNumber);
+            if (token !== renderToken) {{
+              return;
+            }}
+
+            const scale = getViewportScale(page);
+            const viewport = page.getViewport({{ scale }});
+            const outputScale = window.devicePixelRatio || 1;
+            const pageWrap = document.createElement("div");
+            pageWrap.className = "pdf-page-wrap";
+            pageWrap.dataset.pageNumber = String(pageNumber);
+            pageWrap.style.width = `${{viewport.width}}px`;
+
+            const canvas = document.createElement("canvas");
+            canvas.className = "pdf-canvas";
+            canvas.width = Math.floor(viewport.width * outputScale);
+            canvas.height = Math.floor(viewport.height * outputScale);
+            canvas.style.width = `${{viewport.width}}px`;
+            canvas.style.height = `${{viewport.height}}px`;
+
+            const highlightLayer = document.createElement("div");
+            highlightLayer.className = "pdf-highlight-layer";
+            highlightLayer.style.width = `${{viewport.width}}px`;
+            highlightLayer.style.height = `${{viewport.height}}px`;
+
+            pageWrap.appendChild(canvas);
+            pageWrap.appendChild(highlightLayer);
+            pdfStage.appendChild(pageWrap);
+
+            const canvasContext = canvas.getContext("2d");
+            canvasContext.setTransform(outputScale, 0, 0, outputScale, 0, 0);
+            await page.render({{
+              canvasContext,
+              viewport,
+            }}).promise;
+            if (token !== renderToken) {{
+              return;
+            }}
+
+            const textContent = await page.getTextContent();
+            if (token !== renderToken) {{
+              return;
+            }}
+            const highlights = renderHighlightLayer(
+              highlightLayer,
+              viewport,
+              textContent,
+              pageNumber === safePageNumber ? currentEvidenceText : "",
+            );
+
+            if (pageNumber === safePageNumber) {{
+              targetPageWrap = pageWrap;
+              if (highlights.length) {{
+                firstHighlight = highlights[0];
+              }}
+            }}
+          }}
+
+          pdfStatus.textContent = "";
+          const scrollTarget = firstHighlight || targetPageWrap;
+          scrollViewerToTarget(scrollTarget);
+        }} catch (error) {{
+          const message = error instanceof Error ? error.message : String(error);
+          setPdfError(`PDF render failed: ${{message}}`);
+        }}
+      }}
+
+      function resolveHighlightText(documentId, chunkId, evidenceText) {{
+        if (chunkId && CHUNK_TEXTS[documentId] && CHUNK_TEXTS[documentId][chunkId]) {{
+          return CHUNK_TEXTS[documentId][chunkId];
+        }}
+        return evidenceText || "";
+      }}
+
+      async function openDocument(documentId, page, evidenceText = "", chunkId = "") {{
         const record = DOCUMENT_LINKS[documentId];
-        const url = buildPdfUrl(documentId, page);
+        const url = buildPdfUrl(documentId);
         if (!record || !url) {{
           pdfStatus.textContent = `No PDF path is configured for ${{documentId}}.`;
           return;
         }}
         appShell.classList.add("viewer-open");
         pdfPanel.setAttribute("aria-hidden", "false");
-        pdfFrame.src = url;
         pdfTitle.textContent = record.label;
         pdfSubtitle.textContent = page === "" || page === undefined
           ? `Viewing ${{record.label}}`
-          : `Viewing ${{record.label}} near page ${{Number(page) + 1}}`;
-        pdfStatus.textContent = `Loaded from ${{record.href}}`;
-        pdfOpenNew.href = url;
+          : `Viewing ${{record.label}} starting near page ${{Number(page) + 1}}`;
+        pdfStatus.textContent = "Loading PDF...";
+        pdfOpenNew.href = page === "" || page === undefined
+          ? url
+          : `${{url}}#page=${{Number(page) + 1}}`;
+        currentDocumentId = documentId;
+        currentPageNumber = Number.isFinite(Number(page)) && Number(page) >= 0 ? Number(page) + 1 : 1;
+        currentEvidenceText = resolveHighlightText(documentId, chunkId, evidenceText);
+        try {{
+          await waitForPanelOpen();
+          await waitForViewerWidthStable();
+          currentPdf = await loadPdf(record);
+          await renderCurrentPdf();
+        }} catch (error) {{
+          currentPdf = null;
+          const message = error instanceof Error ? error.message : String(error);
+          setPdfError(`PDF load failed: ${{message}}`);
+        }}
       }}
 
       document.addEventListener("click", (event) => {{
@@ -1111,17 +1529,73 @@ class Viewer:
           return;
         }}
         event.preventDefault();
-        openDocument(trigger.dataset.documentId, trigger.dataset.page);
+        openDocument(
+          trigger.dataset.documentId,
+          trigger.dataset.page,
+          trigger.dataset.evidenceText || "",
+          trigger.dataset.chunkId || "",
+        );
       }});
 
       pdfClose.addEventListener("click", () => {{
         appShell.classList.remove("viewer-open");
         pdfPanel.setAttribute("aria-hidden", "true");
-        pdfFrame.src = "about:blank";
+        currentPdf = null;
+        currentDocumentId = null;
+        currentPageNumber = 1;
+        currentEvidenceText = "";
+        clearPdfStage();
         pdfTitle.textContent = "Select a document tag";
         pdfSubtitle.textContent = "Click any `policy#` or `research#` tag to open the paper here.";
         pdfStatus.textContent = "Waiting for a document selection.";
         pdfOpenNew.href = "#";
+      }});
+
+      pdfResizer.addEventListener("pointerdown", (event) => {{
+        if (mobileQuery.matches || !appShell.classList.contains("viewer-open")) {{
+          return;
+        }}
+        event.preventDefault();
+        const startX = event.clientX;
+        const startWidth = pdfPanel.getBoundingClientRect().width;
+        pdfResizer.classList.add("dragging");
+        pdfResizer.setPointerCapture(event.pointerId);
+
+        const onMove = (moveEvent) => {{
+          const delta = startX - moveEvent.clientX;
+          setPanelWidth(startWidth + delta);
+        }};
+
+        const onUp = () => {{
+          pdfResizer.classList.remove("dragging");
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+          window.removeEventListener("pointercancel", onUp);
+          if (currentPdf) {{
+            renderCurrentPdf();
+          }}
+        }};
+
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+        window.addEventListener("pointercancel", onUp);
+      }});
+
+      window.addEventListener("resize", () => {{
+        clearTimeout(resizeTimer);
+        if (mobileQuery.matches) {{
+          resetPanelWidth();
+          return;
+        }}
+        const currentWidth = pdfPanel.getBoundingClientRect().width;
+        if (appShell.classList.contains("viewer-open") && currentWidth > 0) {{
+          setPanelWidth(currentWidth);
+        }}
+        resizeTimer = window.setTimeout(() => {{
+          if (currentPdf && appShell.classList.contains("viewer-open")) {{
+            renderCurrentPdf();
+          }}
+        }}, 120);
       }});
     }})();
   </script>
@@ -1355,12 +1829,10 @@ class Viewer:
             research_evidence=insight.get("research_evidence", []),
             policy_evidence=insight.get("policy_evidence", []),
         )
-        count_tag = f'<span class="pill">{len(policies)} polic{"y" if len(policies) == 1 else "ies"}</span>' if policies else ""
         return f"""
         <li class="insight-item">
           <p class="insight-text">{escape(insight.get("text", ""))}</p>
           <div class="pill-row">
-            {count_tag}
             {tags}
           </div>
           {evidence_details}
@@ -1495,7 +1967,7 @@ class Viewer:
             cards.append(
                 f"""
                 <article class="trace-card">
-                  <strong>{self._render_document_tag(document_id, variant="tag", page=page)} · {escape(label)} · {escape(str(chunk_id))} · {escape(page_label)}</strong>
+                  <strong>{self._render_document_tag(document_id, variant="tag", page=page, evidence_text=trace.get("text", ""), chunk_id=trace.get("chunk_id"))} · {escape(label)} · {escape(str(chunk_id))} · {escape(page_label)}</strong>
                   <p>{escape(trace.get("text", ""))}</p>
                 </article>
                 """
@@ -1533,6 +2005,25 @@ class Viewer:
         relative = os.path.relpath(target, output_parent)
         return Path(relative).as_posix()
 
+    def _build_chunk_text_map(self, document_ids: list[str]) -> dict[str, dict[str, str]]:
+        chunk_map: dict[str, dict[str, str]] = {}
+        base_dir = Path("checkpoints/extraction/pass1")
+        for document_id in document_ids:
+            doc_dir = base_dir / document_id
+            if not doc_dir.exists():
+                continue
+            entries: dict[str, str] = {}
+            for path in sorted(doc_dir.glob("*_classify_c*_request.txt")):
+                chunk_id = _extract_chunk_id_from_name(path.name)
+                if not chunk_id or chunk_id in entries:
+                    continue
+                chunk_text = _extract_chunk_text_from_request(path)
+                if chunk_text:
+                    entries[chunk_id] = chunk_text
+            if entries:
+                chunk_map[document_id] = entries
+        return chunk_map
+
     def _render_document_tag(
         self,
         document_id: str,
@@ -1540,12 +2031,20 @@ class Viewer:
         label: str | None = None,
         variant: str = "tag",
         page: Any | None = None,
+        evidence_text: str | None = None,
+        chunk_id: str | None = None,
     ) -> str:
         classes = f"doc-trigger {variant}".strip()
         page_attr = f' data-page="{escape(str(page))}"' if page is not None else ""
+        evidence_attr = (
+            f' data-evidence-text="{escape(evidence_text)}"'
+            if evidence_text
+            else ""
+        )
+        chunk_attr = f' data-chunk-id="{escape(chunk_id)}"' if chunk_id else ""
         text = label or document_id
         return (
-            f'<button class="{classes}" type="button" data-document-id="{escape(document_id)}"{page_attr}>'
+            f'<button class="{classes}" type="button" data-document-id="{escape(document_id)}"{page_attr}{evidence_attr}{chunk_attr}>'
             f"{escape(text)}"
             "</button>"
         )
@@ -1658,3 +2157,21 @@ def _humanize(value: str) -> str:
 
 def _normalize_space(value: str) -> str:
     return " ".join(value.split())
+
+
+def _extract_chunk_id_from_name(filename: str) -> str | None:
+    match = re.search(r"_classify_(c\d+)_", filename)
+    return match.group(1) if match else None
+
+
+def _extract_chunk_text_from_request(path: Path) -> str:
+    text = path.read_text(encoding="utf-8")
+    marker = "Chunk text:\n"
+    start = text.find(marker)
+    if start < 0:
+        return ""
+    start += len(marker)
+    end = text.find("\n\n[request_json]", start)
+    if end < 0:
+        end = len(text)
+    return _normalize_space(text[start:end])
