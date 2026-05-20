@@ -193,11 +193,21 @@ class Viewer:
         document_links_json = json.dumps(document_links, sort_keys=True)
         chunk_text_map = self._build_chunk_text_map([research_id, *policy_ids])
         chunk_text_map_json = json.dumps(chunk_text_map, sort_keys=True)
+        rule_files = self._build_rule_file_map()
+        rule_files_json = json.dumps(rule_files, sort_keys=True)
         research_tag = self._render_document_tag(research_id, variant="meta")
         policy_set_tags = "".join(self._render_document_tag(policy_id, variant="meta") for policy_id in policy_ids)
+        rule_module_tags = "".join(
+            self._render_rule_tag(path, payload["label"])
+            for path, payload in rule_files.items()
+        )
+        rubric_priority = {
+            "impact_alignment": 0,
+            "risk_alignment": 1,
+        }
         ordered_rubrics = sorted(
             self.alignment_config.rubrics,
-            key=lambda rubric: rubric.name == "risk_alignment",
+            key=lambda rubric: (rubric_priority.get(rubric.name, 2), rubric.name),
         )
         rubric_cards = [
             self._render_rubric_card(
@@ -376,6 +386,72 @@ class Viewer:
       padding: 18px;
       background: linear-gradient(180deg, #243039, #1b242c);
     }}
+    .rules-viewer {{
+      display: none;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(180deg, #141b21, #0f1419);
+    }}
+    .pdf-panel.rules-mode .pdf-viewer {{
+      display: none;
+    }}
+    .pdf-panel.rules-mode .rules-viewer {{
+      display: grid;
+      grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+    }}
+    .rules-tabs {{
+      overflow: auto;
+      border-right: 1px solid rgba(255, 250, 242, 0.08);
+      padding: 12px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.02);
+    }}
+    .rules-tab {{
+      appearance: none;
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(255, 250, 242, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      color: rgba(245, 239, 230, 0.82);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+    }}
+    .rules-tab.active {{
+      background: rgba(15, 118, 110, 0.2);
+      border-color: rgba(15, 118, 110, 0.4);
+      color: #ffffff;
+    }}
+    .rules-code-wrap {{
+      min-width: 0;
+      overflow: auto;
+      padding: 14px;
+    }}
+    .rules-code-head {{
+      color: rgba(245, 239, 230, 0.68);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }}
+    .rules-code {{
+      margin: 0;
+      min-height: 100%;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: #0b1116;
+      border: 1px solid rgba(255, 250, 242, 0.08);
+      color: #d7e5ef;
+      font: 0.82rem/1.55 "SFMono-Regular", "Menlo", "Monaco", "Consolas", monospace;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }}
     .pdf-stage {{
       position: relative;
       width: 100%;
@@ -425,8 +501,13 @@ class Viewer:
       padding: 28px;
       box-shadow: var(--shadow);
       display: grid;
+      gap: 22px;
+      grid-template-columns: minmax(0, 0.96fr) minmax(840px, 1.24fr);
+      align-items: start;
+    }}
+    .app-shell.viewer-open .hero {{
+      grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
       gap: 18px;
-      grid-template-columns: 1.3fr 0.8fr;
     }}
     .hero h1,
     .section-title,
@@ -443,22 +524,77 @@ class Viewer:
       line-height: 0.98;
       letter-spacing: -0.04em;
     }}
+    .app-shell.viewer-open .hero h1 {{
+      font-size: clamp(1.85rem, 3vw, 3rem);
+    }}
     .hero p {{
       margin: 0;
       max-width: 70ch;
       color: rgba(245, 239, 230, 0.86);
       font-size: 1rem;
     }}
+    .hero-copy {{
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      min-height: 100%;
+    }}
+    .hero-intro {{
+      max-width: 58ch;
+      font-size: 1.02rem;
+      line-height: 1.55;
+    }}
+    .app-shell.viewer-open .hero-intro {{
+      max-width: 42ch;
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }}
+    .hero-utility {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-width: 58ch;
+    }}
+    .app-shell.viewer-open .hero-utility {{
+      gap: 8px;
+      max-width: 42ch;
+    }}
+    .hero-note {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 250, 242, 0.08);
+      border: 1px solid rgba(255, 250, 242, 0.16);
+      color: rgba(245, 239, 230, 0.88);
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }}
+    .app-shell.viewer-open .hero-note {{
+      font-size: 0.8rem;
+      padding: 7px 11px;
+    }}
     .meta-grid {{
       display: grid;
-      gap: 14px;
+      gap: 12px;
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-content: start;
+    }}
+    .app-shell.viewer-open .meta-grid {{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
     }}
     .meta-chip {{
       background: rgba(255, 250, 242, 0.08);
       border: 1px solid rgba(255, 250, 242, 0.18);
       border-radius: 18px;
-      padding: 14px 16px;
+      padding: 14px 16px 16px;
+      min-width: 0;
+    }}
+    .app-shell.viewer-open .meta-chip {{
+      padding: 12px 14px 14px;
     }}
     .meta-chip strong {{
       display: block;
@@ -471,6 +607,27 @@ class Viewer:
     .meta-chip span {{
       font-size: 1rem;
       font-weight: 700;
+    }}
+    .meta-chip.generated {{
+      grid-column: span 1;
+    }}
+    .app-shell.viewer-open .meta-chip.module-chip {{
+      grid-column: 1 / -1;
+    }}
+    .meta-chip.module-chip {{
+      padding-bottom: 14px;
+    }}
+    .meta-chip .tag-row {{
+      margin-top: 0;
+      gap: 10px;
+    }}
+    .meta-chip.module-chip .tag-row {{
+      gap: 10px 8px;
+    }}
+    .meta-chip .doc-trigger.meta,
+    .meta-chip .rule-trigger {{
+      font-size: 0.8rem;
+      padding: 7px 12px;
     }}
     .section {{
       margin-top: 24px;
@@ -673,10 +830,10 @@ class Viewer:
       scrollbar-width: thin;
     }}
     .subrubric-list.expanded {{
-      overflow: visible;
-      padding-bottom: 0;
-      display: flex;
-      justify-content: center;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 8px;
+      display: block;
     }}
     .rubric-layout {{
       display: grid;
@@ -703,11 +860,11 @@ class Viewer:
       justify-content: start;
     }}
     .subrubric-grid.expanded {{
-      width: 100%;
-      grid-auto-flow: row;
-      grid-auto-columns: unset;
-      grid-template-columns: repeat(5, minmax(108px, 1fr));
-      justify-content: center;
+      width: max-content;
+      min-width: 100%;
+      grid-auto-flow: column;
+      grid-auto-columns: 108px;
+      justify-content: start;
     }}
     .subrubric-row {{
       display: grid;
@@ -716,29 +873,13 @@ class Viewer:
       align-content: stretch;
       justify-items: center;
       justify-self: stretch;
-      width: 108px;
-      min-width: 108px;
+      width: 100%;
+      min-width: 0;
       min-height: 116px;
       padding: 4px 5px;
       border: 1px solid rgba(30, 27, 24, 0.1);
       border-radius: 14px;
       background: rgba(255, 255, 255, 0.58);
-    }}
-    .rubric-card.risk-alignment {{
-      grid-column: 1 / -1;
-      justify-self: center;
-      width: min(100%, 920px);
-    }}
-    .rubric-card.risk-alignment .rubric-layout {{
-      grid-template-columns: minmax(200px, 228px) minmax(0, 1fr);
-      align-items: center;
-    }}
-    .rubric-card.risk-alignment .rubric-main {{
-      align-content: center;
-    }}
-    .rubric-card.risk-alignment .rubric-copy {{
-      justify-items: center;
-      text-align: center;
     }}
     .subrubric-head {{
       display: grid;
@@ -836,6 +977,24 @@ class Viewer:
       background: rgba(255, 250, 242, 0.16);
       border-color: rgba(255, 250, 242, 0.34);
       color: #ffffff;
+    }}
+    .rule-trigger {{
+      appearance: none;
+      border: 1px solid rgba(255, 250, 242, 0.18);
+      background: rgba(255, 250, 242, 0.08);
+      color: #f5efe6;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }}
+    .rule-trigger:hover {{
+      background: rgba(255, 250, 242, 0.16);
+      border-color: rgba(255, 250, 242, 0.34);
     }}
     .doc-trigger.heading {{
       font-size: 1.25rem;
@@ -961,6 +1120,12 @@ class Viewer:
       grid-template-columns: repeat(2, minmax(0, 1fr));
       margin-top: 10px;
     }}
+    .evidence-block.single-column {{
+      grid-template-columns: 1fr;
+    }}
+    .evidence-block.single-column .trace-card {{
+      max-width: none;
+    }}
     .trace-card {{
       border: 1px solid rgba(30, 27, 24, 0.1);
       background: rgba(255, 255, 255, 0.72);
@@ -1015,6 +1180,17 @@ class Viewer:
         border-bottom: 1px solid rgba(30, 27, 24, 0.12);
         transform: translateY(-14px);
       }}
+      .pdf-panel.rules-mode .rules-viewer {{
+        grid-template-columns: 1fr;
+      }}
+      .rules-tabs {{
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(160px, 1fr);
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 250, 242, 0.08);
+      }}
       .pdf-resizer {{
         display: none;
       }}
@@ -1039,17 +1215,6 @@ class Viewer:
       }}
       .rubric-layout {{
         grid-template-columns: 1fr;
-      }}
-      .rubric-card.risk-alignment .subrubric-list.expanded {{
-        overflow-x: auto;
-        justify-content: start;
-        padding-bottom: 4px;
-      }}
-      .rubric-card.risk-alignment .subrubric-grid.expanded {{
-        width: max-content;
-        grid-auto-flow: column;
-        grid-auto-columns: 108px;
-        grid-template-columns: none;
       }}
     }}
   </style>
@@ -1077,13 +1242,29 @@ class Viewer:
             </div>
           </div>
         </div>
+        <div class="rules-viewer" id="rules-viewer">
+          <div class="rules-tabs" id="rules-tabs"></div>
+          <div class="rules-code-wrap">
+            <div class="rules-code-head" id="rules-code-head">Rule File</div>
+            <pre class="rules-code" id="rules-code"></pre>
+          </div>
+        </div>
       </div>
     </aside>
     <main class="shell">
     <section class="hero">
       <div>
-        <div class="eyebrow">Combined Research Dashboard</div>
-        <h1>{escape(title)}</h1>
+        <div class="hero-copy">
+          <div>
+            <div class="eyebrow">Combined Research Dashboard</div>
+            <h1>{escape(title)}</h1>
+          </div>
+          <p class="hero-intro">Explore one research paper against the full policy set, open source PDFs inline from any document tag, and inspect the YAML rule modules that define extraction, alignment, scoring, and viewer behavior.</p>
+          <div class="hero-utility">
+            <span class="hero-note">Click `policy#` or `research#` tags to open source PDFs</span>
+            <span class="hero-note">Use Rule Module tags to inspect YAML definitions</span>
+          </div>
+        </div>
       </div>
       <div class="meta-grid">
         <div class="meta-chip">
@@ -1094,13 +1275,17 @@ class Viewer:
           <strong>Policies Compared</strong>
           <span>{len(policy_ids)}</span>
         </div>
-        <div class="meta-chip">
+        <div class="meta-chip generated">
           <strong>Generated</strong>
           <span>{escape(generated_at)}</span>
         </div>
         <div class="meta-chip" style="grid-column: 1 / -1;">
           <strong>Policy Set</strong>
           <span class="tag-row">{policy_set_tags}</span>
+        </div>
+        <div class="meta-chip module-chip" style="grid-column: 1 / -1;">
+          <strong>Rule Modules</strong>
+          <span class="tag-row">{rule_module_tags}</span>
         </div>
       </div>
     </section>
@@ -1145,6 +1330,7 @@ class Viewer:
 
     const DOCUMENT_LINKS = {document_links_json};
     const CHUNK_TEXTS = {chunk_text_map_json};
+    const RULE_FILES = {rule_files_json};
     (() => {{
       const appShell = document.getElementById("app-shell");
       const pdfPanel = document.getElementById("pdf-panel");
@@ -1156,6 +1342,9 @@ class Viewer:
       const pdfOpenNew = document.getElementById("pdf-open-new");
       const pdfClose = document.getElementById("pdf-close");
       const pdfResizer = document.getElementById("pdf-resizer");
+      const rulesTabs = document.getElementById("rules-tabs");
+      const rulesCode = document.getElementById("rules-code");
+      const rulesCodeHead = document.getElementById("rules-code-head");
       const mobileQuery = window.matchMedia("(max-width: 1180px)");
       const minPanelWidth = 320;
       const maxPanelRatio = 0.7;
@@ -1166,6 +1355,7 @@ class Viewer:
       let currentEvidenceText = "";
       let renderToken = 0;
       let resizeTimer = null;
+      let activeRuleFile = Object.keys(RULE_FILES)[0] || "";
 
       function setPanelWidth(width) {{
         const boundedWidth = Math.min(
@@ -1177,6 +1367,47 @@ class Viewer:
 
       function resetPanelWidth() {{
         document.documentElement.style.setProperty("--panel-width", "minmax(320px, 30vw)");
+      }}
+
+      function setPanelMode(mode) {{
+        const rulesMode = mode === "rules";
+        pdfPanel.classList.toggle("rules-mode", rulesMode);
+        pdfOpenNew.style.display = rulesMode ? "none" : "";
+        if (rulesMode) {{
+          pdfTitle.textContent = "Rule Definitions";
+          pdfSubtitle.textContent = "Select a module on the left to inspect the YAML rules.";
+          pdfStatus.textContent = "";
+        }}
+      }}
+
+      function renderRuleTabs() {{
+        rulesTabs.innerHTML = "";
+        for (const [path, payload] of Object.entries(RULE_FILES)) {{
+          const tab = document.createElement("button");
+          tab.className = "rules-tab";
+          if (path === activeRuleFile) {{
+            tab.classList.add("active");
+          }}
+          tab.type = "button";
+          tab.textContent = payload.label;
+          tab.addEventListener("click", () => {{
+            activeRuleFile = path;
+            renderRuleTabs();
+            renderRuleFile();
+          }});
+          rulesTabs.appendChild(tab);
+        }}
+      }}
+
+      function renderRuleFile() {{
+        const payload = RULE_FILES[activeRuleFile];
+        if (!payload) {{
+          rulesCodeHead.textContent = "No rule files available";
+          rulesCode.textContent = "";
+          return;
+        }}
+        rulesCodeHead.textContent = payload.path;
+        rulesCode.textContent = payload.content;
       }}
 
       function buildPdfUrl(documentId) {{
@@ -1500,6 +1731,7 @@ class Viewer:
         }}
         appShell.classList.add("viewer-open");
         pdfPanel.setAttribute("aria-hidden", "false");
+        setPanelMode("pdf");
         pdfTitle.textContent = record.label;
         pdfSubtitle.textContent = page === "" || page === undefined
           ? `Viewing ${{record.label}}`
@@ -1526,6 +1758,17 @@ class Viewer:
       document.addEventListener("click", (event) => {{
         const trigger = event.target.closest("[data-document-id]");
         if (!trigger) {{
+          const ruleTrigger = event.target.closest("[data-rule-file]");
+          if (!ruleTrigger) {{
+            return;
+          }}
+          event.preventDefault();
+          activeRuleFile = ruleTrigger.dataset.ruleFile;
+          renderRuleTabs();
+          renderRuleFile();
+          appShell.classList.add("viewer-open");
+          pdfPanel.setAttribute("aria-hidden", "false");
+          setPanelMode("rules");
           return;
         }}
         event.preventDefault();
@@ -1540,6 +1783,7 @@ class Viewer:
       pdfClose.addEventListener("click", () => {{
         appShell.classList.remove("viewer-open");
         pdfPanel.setAttribute("aria-hidden", "true");
+        setPanelMode("pdf");
         currentPdf = null;
         currentDocumentId = null;
         currentPageNumber = 1;
@@ -1597,6 +1841,9 @@ class Viewer:
           }}
         }}, 120);
       }});
+
+      renderRuleTabs();
+      renderRuleFile();
     }})();
   </script>
 </body>
@@ -1940,23 +2187,26 @@ class Viewer:
         research_evidence: list[dict[str, Any]],
         policy_evidence: list[dict[str, Any]],
     ) -> str:
+        research_evidence = _filter_display_traces(research_evidence)
+        policy_evidence = _filter_display_traces(policy_evidence)
         if not research_evidence and not policy_evidence:
             return ""
-        research_block = self._render_trace_column("Research evidence", research_evidence)
-        policy_block = self._render_trace_column("Policy evidence", policy_evidence)
+        blocks = []
+        if research_evidence:
+            blocks.append(self._render_trace_column("Research evidence", research_evidence))
+        if policy_evidence:
+            blocks.append(self._render_trace_column("Policy evidence", policy_evidence))
+        block_class = "evidence-block single-column" if len(blocks) == 1 else "evidence-block"
         return f"""
         <details>
           <summary>Evidence Trail</summary>
-          <div class="evidence-block">
-            {research_block}
-            {policy_block}
+          <div class="{block_class}">
+            {"".join(blocks)}
           </div>
         </details>
         """
 
     def _render_trace_column(self, title: str, traces: list[dict[str, Any]]) -> str:
-        if not traces:
-            return f'<div class="empty">{escape(title)}: none attached.</div>'
         cards = []
         for trace in traces:
             document_id = str(trace.get("document_id", "doc"))
@@ -2024,6 +2274,27 @@ class Viewer:
                 chunk_map[document_id] = entries
         return chunk_map
 
+    def _build_rule_file_map(self) -> dict[str, dict[str, str]]:
+        files = [
+            ("src/extraction/templates/default_extraction_config.yaml", "extraction"),
+            ("src/alignment/templates/default_alignment_config.yaml", "alignment"),
+            ("src/scoring/templates/default_scoring_config.yaml", "scoring"),
+            ("src/viewer/templates/default_viewer_config.yaml", "viewer"),
+            ("src/extraction/templates/prompts.yaml", "extraction prompts"),
+            ("src/alignment/templates/prompts.yaml", "alignment prompts"),
+        ]
+        output: dict[str, dict[str, str]] = {}
+        for path_str, label in files:
+            path = Path(path_str)
+            if not path.exists():
+                continue
+            output[path_str] = {
+                "label": label,
+                "path": path_str,
+                "content": path.read_text(encoding="utf-8"),
+            }
+        return output
+
     def _render_document_tag(
         self,
         document_id: str,
@@ -2046,6 +2317,13 @@ class Viewer:
         return (
             f'<button class="{classes}" type="button" data-document-id="{escape(document_id)}"{page_attr}{evidence_attr}{chunk_attr}>'
             f"{escape(text)}"
+            "</button>"
+        )
+
+    def _render_rule_tag(self, path: str, label: str) -> str:
+        return (
+            f'<button class="rule-trigger" type="button" data-rule-file="{escape(path)}">'
+            f"{escape(label)}"
             "</button>"
         )
 
@@ -2079,7 +2357,12 @@ class Viewer:
                 )
         return sorted(
             merged.values(),
-            key=lambda item: (-len(item["policy_ids"]), item["text"].lower()),
+            key=lambda item: (
+                -len(item["policy_ids"]),
+                -len(item.get("text", "")),
+                -(len(item.get("research_evidence", [])) + len(item.get("policy_evidence", []))),
+                item["text"].lower(),
+            ),
         )
 
     def _group_field_results(self, field_results: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
@@ -2131,6 +2414,22 @@ def _merge_traces(existing: list[dict[str, Any]], new_items: list[dict[str, Any]
         merged.append(item)
         seen.add(signature)
     return merged
+
+
+def _filter_display_traces(traces: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    filtered: list[dict[str, Any]] = []
+    for trace in traces:
+        chunk_id = trace.get("chunk_id")
+        page = trace.get("page")
+        text = _normalize_space(str(trace.get("text", "")))
+        if not chunk_id:
+            continue
+        if page is None:
+            continue
+        if len(text) < 100:
+            continue
+        filtered.append(trace)
+    return filtered
 
 
 def _polar_point(cx: float, cy: float, radius: float, angle_deg: float) -> tuple[float, float]:
